@@ -11,8 +11,7 @@ License: LICENSE
 # Usually this line does not need to be modified.
 Sources:
 - '%{name}-%{version}.tar.bz2'
-Description: |
-  Keyboard prediction plugin based on the Presage prediction engine
+Description: Keyboard prediction plugin based on the Presage prediction engine
 Configure: none
 # The qtc5 builder inserts macros to allow QtCreator to have fine
 # control over qmake/make execution

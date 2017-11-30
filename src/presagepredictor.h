@@ -54,6 +54,8 @@ public:
 
 private:
     QHash<int, QByteArray> m_roles;
+signals:
+    void predictionsChanged();
 };
 
 class PresagePredictor : public QQuickItem
@@ -61,7 +63,7 @@ class PresagePredictor : public QQuickItem
     Q_OBJECT
     Q_DISABLE_COPY(PresagePredictor)
     Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
-    Q_PROPERTY(PresagePredictorModel* engine READ engine NOTIFY onPredictionsChanged)
+    Q_PROPERTY(PresagePredictorModel* engine READ engine NOTIFY engineChanged)
 public:
     PresagePredictor(QQuickItem *parent = 0);
     ~PresagePredictor();
@@ -74,6 +76,7 @@ public:
     Q_INVOKABLE void processSymbol(const QString &symbol, bool forceAdd);
     Q_INVOKABLE void processBackspace();
     Q_INVOKABLE bool isLetter(const QString & letter) const;
+    Q_INVOKABLE void reactivateWord(const QString & word);
 
     Q_INVOKABLE void startLayout(int width, int height);
     Q_INVOKABLE void addLayoutButton(int x, int y, int width, int height, const QString &buttonText, const QString &buttonTextShifted);
@@ -108,8 +111,7 @@ private slots:
 
 signals:
     void languageChanged();
-
-    void onPredictionsChanged();
+    void engineChanged();
 };
 
 #endif // PRESAGEPREDICTOR_H

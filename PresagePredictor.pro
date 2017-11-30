@@ -11,7 +11,6 @@ DESTDIR = bin
 
 uri = hu.mm.presagepredictor
 
-
 TEMPLATE = lib
 CONFIG += qt plugin
 

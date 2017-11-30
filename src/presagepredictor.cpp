@@ -9,10 +9,10 @@
 // globals
 std::string       suggestions;
 std::string       config;
-std::stringstream buffer;    // text buffer, a real application would
-// use something a little more
-// sophisticated than a stringstream
-std::vector<std::string> words;
+std::stringstream predictBuffer;
+std::stringstream contextBuffer;
+std::stringstream wordBuffer;
+std::vector<std::string> predictedWords;
 
 PresagePredictor::PresagePredictor(QQuickItem *parent):
     QQuickItem(parent),
@@ -20,7 +20,7 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
     m_firstLetterCapitalized(false)
 {
     // magic starts here
-    m_callback = new PresagePredictorCallback(buffer);
+    m_callback = new PresagePredictorCallback(predictBuffer);
     m_presage = new Presage(m_callback, config);
 
     m_presage->config("Presage.Selector.SUGGESTIONS", "6");
@@ -48,27 +48,35 @@ PresagePredictor::~PresagePredictor()
 void PresagePredictor::reset()
 {
     log("PresagePredictor::reset");
-    buffer.str("");
-    buffer.clear();
+    contextBuffer.str("");
+    contextBuffer.clear();
+    wordBuffer.str("");
+    wordBuffer.clear();
     predict();
 }
 
 void PresagePredictor::setContext(const QString & context)
 {
-    /*if (buffer.str().length() == 0) {
-        log(QString("PresagePredictor::setContext %1 when buffer empty").arg(context));
-        /*buffer.str("");
-        buffer.clear();
-        buffer << context.toStdString();
-        predict();*/
-    //}
+    log(QString("PresagePredictor::setContext %1").arg(context));
+    contextBuffer.str("");
+    contextBuffer.clear();
+    contextBuffer << context.toStdString();
+    //predict();
 }
 
 void PresagePredictor::predict()
 {
-    log(QString("PresagePredictor::predict called -> buffer \"%1\"").arg(QString::fromStdString(buffer.str())));
-    words = m_presage->predict();
-    log(QString("PresagePredictor::predicted  words count: %1").arg(words.size()));
+    log("PresagePredictor::predict");
+    log(QString("CTX : %1").arg(QString::fromStdString(contextBuffer.str())));
+    log(QString("Word: %1").arg(QString::fromStdString(wordBuffer.str())));
+
+    predictBuffer.str("");
+    predictBuffer.clear();
+    predictBuffer << contextBuffer.str();
+    predictBuffer << wordBuffer.str();
+
+    predictedWords = m_presage->predict();
+    log(QString("PresagePredictor::predicted  words count: %1").arg(predictedWords.size()));
     /*QString bufferString = QString::fromStdString(buffer.str());
     if (m_firstLetterCapitalized) {
         // if the written word starts with capital letter modify the predictions to match that
@@ -78,21 +86,24 @@ void PresagePredictor::predict()
     }*/
 
     m_engine->reload();
-    emit onPredictionsChanged();
 }
 
 void PresagePredictor::acceptWord(const QString &context)
 {
     log(QString("PresagePredictor::acceptWord(%1);").arg(context));
     m_presage->learn(context.toStdString());
+    wordBuffer.str("");
+    wordBuffer.clear();
 }
 
 void PresagePredictor::acceptPrediction(int index)
 {
-    /*log(QString("PresagePredictor::acceptPrediction(%1)").arg(index));
-    if ((size_t)index < words.size()) {
-        m_presage->learn(words[index]);
-    }*/
+    log(QString("PresagePredictor::acceptPrediction(%1)").arg(index));
+    if ((size_t)index < predictedWords.size()) {
+        m_presage->learn(predictedWords[index]);
+        wordBuffer.str("");
+        wordBuffer.clear();
+    }
 }
 
 void PresagePredictor::processSymbol(const QString &symbol, bool forceAdd)
@@ -101,8 +112,7 @@ void PresagePredictor::processSymbol(const QString &symbol, bool forceAdd)
 
     if (symbol.length()) {
         log(QString("PresagePredictor::processSymbol %1").arg(symbol));
-        buffer << symbol.toStdString();
-        words = m_presage->predict();
+        wordBuffer << symbol.toStdString();
         predict();
     }
 }
@@ -110,12 +120,12 @@ void PresagePredictor::processSymbol(const QString &symbol, bool forceAdd)
 void PresagePredictor::processBackspace()
 {
     log(QString("PresagePredictor::processBackspace"));
-    std::string bufferContents = buffer.str();
-    if (bufferContents.length() > 0) {
-        bufferContents = bufferContents.substr(0, bufferContents.length() - 1);
-        buffer.str("");
-        buffer.clear();
-        buffer << bufferContents;
+    std::string wordBufferContents = wordBuffer.str();
+    if (wordBufferContents.length() > 0) {
+        wordBufferContents = wordBufferContents.substr(0, wordBufferContents.length() - 1);
+        wordBuffer.str("");
+        wordBuffer.clear();
+        wordBuffer << wordBufferContents;
         predict();
     }
 }
@@ -125,6 +135,14 @@ bool PresagePredictor::isLetter(const QString & letter) const
     if (letter.length() == 0)
         return false;
     return letter.at(0).isLetter();
+}
+
+void PresagePredictor::reactivateWord(const QString &word)
+{
+    log(QString("PresagePredictor::reactivateWord(%1)").arg(word));
+    wordBuffer.str("");
+    wordBuffer.clear();
+    wordBuffer << word.toStdString();
 }
 
 void PresagePredictor::startLayout(int width, int height)
@@ -177,10 +195,7 @@ void PresagePredictor::setPredictions(const QStringList &predictions)
 
 void PresagePredictor::log(const QString &log)
 {
-    QVariant returnedValue;
-    QMetaObject::invokeMethod(this, "log",
-                              Q_RETURN_ARG(QVariant, returnedValue),
-                              Q_ARG(QVariant, QVariant(log)));
+    qDebug() << log;
 }
 
 void PresagePredictor::setFirstLetterCapitalized(bool firstLetterCapitalized)
@@ -210,8 +225,8 @@ QVariant PresagePredictorModel::data(const QModelIndex &index, int role) const
     if (role == IndexRole)
         return index.row();
     if (role == TextRole) {
-        if ((size_t)index.row() < words.size())
-            return QString::fromStdString(words[index.row()]);
+        if ((size_t)index.row() < predictedWords.size())
+            return QString::fromStdString(predictedWords[index.row()]);
     }
     return QVariant();
 }
@@ -220,7 +235,7 @@ int PresagePredictorModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return words.size();
+    return predictedWords.size();
 }
 
 QHash<int, QByteArray> PresagePredictorModel::roleNames() const
@@ -233,6 +248,7 @@ void PresagePredictorModel::reload()
     beginResetModel();
     endResetModel();
 
-    beginInsertRows(QModelIndex(), 0, words.size());
+    beginInsertRows(QModelIndex(), 0, predictedWords.size());
     endInsertRows();
+    emit predictionsChanged();
 }

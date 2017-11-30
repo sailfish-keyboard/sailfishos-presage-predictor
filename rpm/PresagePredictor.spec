@@ -31,7 +31,6 @@ BuildRequires:  libpresage-devel
 %description
 Keyboard prediction plugin based on the Presage prediction engine
 
-
 %prep
 %setup -q -n %{name}-%{version}
 
