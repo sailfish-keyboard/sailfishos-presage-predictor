@@ -15,9 +15,10 @@ My plan is to separate these things to 2+one language specific packages:
 
 # Debugging info
 To debug a keyboard plugin you should run:
+```
 pkill maliit-server; MALIIT_DEBUG=enabled maliit-server
+```
 (Console output is controlled by the MALIIT_DEBUG variable)
-From QML you could use the 
 
 # Thanks, inspiration, links
 Matteo Vescovi who developed the Presage:
