@@ -38,9 +38,15 @@ After this you should be able to build the PresagePredictor.pro with the Sailfis
 
 # Debugging info
 To debug a keyboard plugin you should run:
+=======
+# Debugging (khm. troubleshooting) info
+To debug a keyboard plugin you should run on your device as root:
+```
 pkill maliit-server; MALIIT_DEBUG=enabled maliit-server
+```
 (Console output is controlled by the MALIIT_DEBUG variable)
 From QML you could use the 
+If you know how to hook this through the GDB in the SailfishOS SDK let me know.
 
 # Thanks, inspiration, links
 Matteo Vescovi who developed the Presage:
