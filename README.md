@@ -14,7 +14,7 @@ My plan is to separate these things to 2+one language specific packages:
 - One language specific package for installing the ngram databases
 
 # Debugging info
-To debug a keyboard plugin you should run:
+To debug a keyboard plugin you should run on your device as root:
 ```
 pkill maliit-server; MALIIT_DEBUG=enabled maliit-server
 ```
