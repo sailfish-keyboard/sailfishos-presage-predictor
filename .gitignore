@@ -37,3 +37,12 @@ Makefile*
 # QtCtreator CMake
 CMakeLists.txt.user*
 
+#Sailfish SDK related stuff
+bin/*
+build/*
+RPMS/*
+debug*.list
+documentation.list
+
+# for the KDE 
+.directory
