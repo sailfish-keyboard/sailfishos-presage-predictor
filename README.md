@@ -13,6 +13,29 @@ My plan is to separate these things to 2+one language specific packages:
 - PresagePredictor for my QML and C++ InputHandler code
 - One language specific package for installing the ngram databases
 
+# Building
+## Build presage
+Copy the presage/rpm folder to the checked out presage source folder.
+Follow the instructions here:
+https://sailfishos.org/develop/tutorials/building-sailfish-os-packages-manually/
+
+```
+mm@lapos:~$ ssh -p 2222 -i /opt/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
+Last login: Thu Nov 30 19:38:03 2017 from 10.0.2.2
+,---
+| SailfishOS 2.1.3.7 (Kymijoki) (i486)
+'---
+[mersdk@SailfishSDK ~]$ cd /home/src1/keyboard/presage_predictor/presage/
+[mersdk@SailfishSDK presage]$ mb2 -t SailfishOS-2.1.3.7-armv7hl build
+
+```
+If you want to build the InputHandler plugin with the SDK you should install the presage packages on the build VM with:
+
+```
+[mersdk@SailfishSDK presage]$ sb2 -t SailfishOS-2.1.3.7-armv7hl -m sdk-install -R rpm -i RPMS/*.rpm
+```
+After this you should be able to build the PresagePredictor.pro with the SailfishOS IDE.
+
 # Debugging info
 To debug a keyboard plugin you should run:
 pkill maliit-server; MALIIT_DEBUG=enabled maliit-server
