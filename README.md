@@ -13,12 +13,13 @@ My plan is to separate these things to 2+one language specific packages:
 - PresagePredictor for my QML and C++ InputHandler code
 - One language specific package for installing the ngram databases
 
-# Debugging info
+# Debugging (khm. troubleshooting) info
 To debug a keyboard plugin you should run on your device as root:
 ```
 pkill maliit-server; MALIIT_DEBUG=enabled maliit-server
 ```
 (Console output is controlled by the MALIIT_DEBUG variable)
+If you know how to hook this through the GDB in the SailfishOS SDK let me know.
 
 # Thanks, inspiration, links
 Matteo Vescovi who developed the Presage:
