@@ -8,6 +8,7 @@
 #include <QtQuick/QQuickItem>
 
 #include <string.h>
+#include <sstream>
 #include <presage.h>
 
 #include "notificationmanager.h"
@@ -92,8 +93,6 @@ public:
 
     void predict();
 
-    Q_INVOKABLE void setFirstLetterCapitalized(bool firstLetterCapitalized);
-
 private:
     PresageCallback* m_callback;
     Presage *m_presage;
@@ -104,7 +103,12 @@ private:
     QStringList m_predictions;
     void log(const QString &log);
 
-    bool m_firstLetterCapitalized;
+    enum CapitalizationMode {
+        NonCapitalized,
+        FirstLetterCapitalized,
+        AllLettersCapitalized
+    };
+    CapitalizationMode m_capitalizationMode;
 
 private slots:
     void clearLearnedWords();

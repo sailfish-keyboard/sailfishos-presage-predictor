@@ -48,3 +48,4 @@ inputhandler.path = /usr/share/maliit/plugins/com/jolla
 
 INSTALLS += target qmldir inputhandler
 
+INCLUDEPATH += /usr/include/c++/4.8.5/ # it is a hack until I figure out how to add the SDK's patshs to the QtCreator
