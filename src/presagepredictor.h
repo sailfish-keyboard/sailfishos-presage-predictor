@@ -38,10 +38,17 @@ private:
 
 };
 
+class PresagePredictor; // forward declaration
 class PresagePredictorModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
+    enum CapitalizationMode {
+        NonCapitalized,
+        FirstLetterCapitalized,
+        AllLettersCapitalized
+    };
+
     enum PredictionRoles {
         IndexRole = Qt::UserRole + 1,
         TextRole
@@ -53,8 +60,12 @@ public:
     QHash<int, QByteArray> roleNames() const;
     void reload();
 
+    CapitalizationMode capitalizationMode() const;
+    void setCapitalizationMode(const CapitalizationMode &capitalizationMode);
+
 private:
     QHash<int, QByteArray> m_roles;
+    CapitalizationMode m_capitalizationMode;
 signals:
     void predictionsChanged();
 };
@@ -72,10 +83,11 @@ public:
     // interface for the Xt9 based one
     Q_INVOKABLE void reset();
     Q_INVOKABLE void setContext(const QString &context);
-    Q_INVOKABLE void acceptWord(const QString &context);
+    Q_INVOKABLE void acceptWord(const QString &word);
     Q_INVOKABLE void acceptPrediction(int index);
     Q_INVOKABLE void processSymbol(const QString &symbol, bool forceAdd);
     Q_INVOKABLE void processBackspace();
+    Q_INVOKABLE void processKeyRelease();
     Q_INVOKABLE bool isLetter(const QString & letter) const;
     Q_INVOKABLE void reactivateWord(const QString & word);
 
@@ -102,13 +114,10 @@ private:
     PresagePredictorModel *m_engine;
     QStringList m_predictions;
     void log(const QString &log);
-
-    enum CapitalizationMode {
-        NonCapitalized,
-        FirstLetterCapitalized,
-        AllLettersCapitalized
-    };
-    CapitalizationMode m_capitalizationMode;
+    QString m_contextBuffer;
+    QString m_wordBuffer;
+    bool m_backspacePressed;
+    int m_backspaceCounter;
 
 private slots:
     void clearLearnedWords();

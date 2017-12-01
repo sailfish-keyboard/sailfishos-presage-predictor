@@ -294,6 +294,10 @@ InputHandler {
         thread.acceptPrediction(index)
     }
 
+    function handleKeyRelease() {
+        thread.processKeyRelease()
+    }
+
     function handleKeyClick() {
         var handled = false
         keyboard.expandedPaste = false
