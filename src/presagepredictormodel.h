@@ -17,12 +17,11 @@ public:
         TextRole
     };
 
-    enum ShiftState {
-        NoShift,
-        ShiftLocked,
-        ShiftLatched
+    enum CapitalizationMode {
+        NonCapital,
+        FirstCapital,
+        AllCapital
     };
-    Q_ENUM(ShiftState)
 
     PresagePredictorModel(QObject *parent = 0);
     QVariant data(const QModelIndex &index, int role) const;
@@ -30,15 +29,15 @@ public:
     QHash<int, QByteArray> roleNames() const;
     void reload(const QStringList predictedWords);
 
-    void setShiftState(ShiftState shiftState);
+    void setCapitalizationMode(CapitalizationMode capitalizationMode);
 
 private:
     QHash<int, QByteArray> m_roles;
-    ShiftState m_shiftState;
+    CapitalizationMode m_capitalizationMode;
     QStringList m_predictedWords;
 
 signals:
     void predictionsChanged();
 };
-Q_DECLARE_METATYPE(PresagePredictorModel::ShiftState)
+
 #endif // PRESAGEPREDICTORMODEL_H

@@ -19,9 +19,9 @@ InputHandler {
         // note: also china language codes being set with this, assume xt9 model just ignores such
         language: layoutRow.layout ? layoutRow.layout.languageCode : ""
 
-        property int shiftState: keyboard.isShifted ? (keyboard.isShiftLocked ? PresagePredictorModel.ShiftLocked
-                                                                              : PresagePredictorModel.ShiftLatched)
-                                                    : PresagePredictorModel.NoShift
+        property int shiftState: keyboard.isShifted ? (keyboard.isShiftLocked ? PresagePredictor.ShiftLocked
+                                                                              : PresagePredictor.ShiftLatched)
+                                                    : PresagePredictor.NoShift
         onShiftStateChanged: setShiftState(shiftState)
 
         function abort(word) {

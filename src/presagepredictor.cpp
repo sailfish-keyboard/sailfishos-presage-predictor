@@ -12,7 +12,8 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
     QQuickItem(parent),
     m_presage(nullptr),
     m_engine(new PresagePredictorModel()),
-    m_backspacePressed(false)
+    m_backspacePressed(false),
+    m_shiftState(NoShift)
 {
     m_callback = new PresagePredictorCallback(m_predictBuffer);
     try {
@@ -51,7 +52,7 @@ void PresagePredictor::reset()
     log("PresagePredictor::reset");
     m_wordBuffer.clear();
     m_contextBuffer.clear();
-    m_engine->setShiftState(PresagePredictorModel::NoShift);
+    m_engine->setCapitalizationMode(PresagePredictorModel::NonCapital);
     predict();
 }
 
@@ -156,9 +157,33 @@ void PresagePredictor::reactivateWord(const QString &word)
     m_wordBuffer = word;
 }
 
-void PresagePredictor::setShiftState(int shiftState)
+void PresagePredictor::setShiftState(ShiftState shiftState)
 {
-    m_engine->setShiftState((PresagePredictorModel::ShiftState)shiftState);
+    qDebug() << "PresagePredictor::setShiftState(" << QMetaEnum::fromType<ShiftState>().valueToKey(shiftState) << ")";
+    if (m_shiftState != shiftState) {
+        if (m_shiftState == ShiftLatched && shiftState == NoShift) {
+            // when starting a word with latched shift with capital letter
+            // sink the shiftchange to noncapital and fool the model with firstcapital mode
+            // since this is what is expected
+            if (m_wordBuffer.length() && m_wordBuffer.at(0).isUpper()) {
+                m_engine->setCapitalizationMode((PresagePredictorModel::FirstCapital));
+                return;
+            }
+        }
+        m_shiftState = shiftState;
+
+        switch (m_shiftState) {
+        case NoShift:
+            m_engine->setCapitalizationMode(PresagePredictorModel::NonCapital);
+            break;
+        case ShiftLatched:
+            m_engine->setCapitalizationMode(PresagePredictorModel::FirstCapital);
+            break;
+        case ShiftLocked:
+            m_engine->setCapitalizationMode(PresagePredictorModel::AllCapital);
+            break;
+        }
+    }
 }
 
 void PresagePredictor::startLayout(int width, int height)
@@ -195,6 +220,7 @@ void PresagePredictor::setLanguage(const QString &language)
             try {
                 m_presage->config("Presage.Predictors.DefaultSmoothedNgramPredictor.DBFILENAME",  dbFileName.toLatin1().constData());
             } catch (PresageException e) {
+                qDebug() << e.what();
                 return;
             }
 

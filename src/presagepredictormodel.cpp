@@ -4,7 +4,7 @@
 
 PresagePredictorModel::PresagePredictorModel(QObject *parent) :
     QAbstractListModel(parent),
-    m_shiftState(NoShift)
+    m_capitalizationMode(NonCapital)
 {
     m_roles[IndexRole] = "index";
     m_roles[TextRole] = "text";
@@ -17,18 +17,18 @@ QVariant PresagePredictorModel::data(const QModelIndex &index, int role) const
 
     if (role == TextRole) {
         if (index.row() < m_predictedWords.size()) {
-            switch (m_shiftState) {
-            case NoShift:
-                return m_predictedWords[index.row()];
+            switch (m_capitalizationMode) {
+            case NonCapital:
+                return m_predictedWords.at(index.row()).toLower();
                 break;
-            case ShiftLatched: {
-                QString ret = m_predictedWords[index.row()];
+            case FirstCapital: {
+                QString ret = m_predictedWords.at(index.row());
                 if (ret.length()) {
                     return ret.replace(0, 1, ret.at(0).toUpper());
                 }
             } break;
-            case ShiftLocked:
-                return m_predictedWords[index.row()].toUpper();
+            case AllCapital:
+                return m_predictedWords.at(index.row()).toUpper();
                 break;
             }
         }
@@ -59,11 +59,11 @@ void PresagePredictorModel::reload(const QStringList predictedWords)
     emit predictionsChanged();
 }
 
-void PresagePredictorModel::setShiftState(ShiftState shiftState)
+void PresagePredictorModel::setCapitalizationMode(CapitalizationMode capitalizationMode)
 {
-    qDebug() << "PresagePredictorModel::setShiftState" << QMetaEnum::fromType<ShiftState>().valueToKey(shiftState);
-    if (m_shiftState != shiftState) {
-        m_shiftState = shiftState;
+    qDebug() << "PresagePredictorModel::setCapitalizationMode" << capitalizationMode;
+    if (m_capitalizationMode != capitalizationMode) {
+        m_capitalizationMode = capitalizationMode;
         reload(m_predictedWords);
     }
 }

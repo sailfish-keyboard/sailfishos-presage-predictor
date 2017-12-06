@@ -168,6 +168,7 @@ rm -rf %{buildroot}%{_libdir}/*.la
 %{_datadir}/presage/getting_started.txt
 
 %changelog
+* Wed Feb 08 2017 Miklos Marton <martonmiklosqdev@gmail.com> 2.1.0-0.0.3
 * Sun Aug 23 2015 i@marguerite.su
 - update version 0.9.1
   * see NEWS

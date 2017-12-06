@@ -47,6 +47,13 @@ class PresagePredictor : public QQuickItem
     Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
     Q_PROPERTY(PresagePredictorModel* engine READ engine NOTIFY engineChanged)
 public:
+    enum ShiftState {
+        NoShift,
+        ShiftLocked,
+        ShiftLatched
+    };
+    Q_ENUM(ShiftState)
+
     PresagePredictor(QQuickItem *parent = 0);
     ~PresagePredictor();
 
@@ -60,7 +67,7 @@ public:
     Q_INVOKABLE void processKeyRelease();
     Q_INVOKABLE bool isLetter(const QString & letter) const;
     Q_INVOKABLE void reactivateWord(const QString & word);
-    Q_INVOKABLE void setShiftState(int shiftState);
+    Q_INVOKABLE void setShiftState(ShiftState shiftState);
 
     Q_INVOKABLE void startLayout(int width, int height);
     Q_INVOKABLE void addLayoutButton(int x, int y, int width, int height, const QString &buttonText, const QString &buttonTextShifted);
@@ -89,6 +96,7 @@ private:
     QString m_wordBuffer;
     bool m_backspacePressed;
     int m_backspaceCounter;
+    ShiftState m_shiftState;
 
     std::stringstream m_predictBuffer;
     std::vector<std::string> m_predictedWords;
@@ -100,4 +108,5 @@ signals:
     void languageChanged();
     void engineChanged();
 };
+Q_DECLARE_METATYPE(PresagePredictor::ShiftState)
 #endif // PRESAGEPREDICTOR_H
