@@ -12,7 +12,7 @@
 #include <presage.h>
 
 #include "notificationmanager.h"
-
+#include "presagepredictormodel.h"
 
 /** Callback object for presage demo application.
  *
@@ -38,37 +38,7 @@ private:
 
 };
 
-class PresagePredictor; // forward declaration
-class PresagePredictorModel : public QAbstractListModel
-{
-    Q_OBJECT
-public:
-    enum CapitalizationMode {
-        NonCapitalized,
-        FirstLetterCapitalized,
-        AllLettersCapitalized
-    };
-
-    enum PredictionRoles {
-        IndexRole = Qt::UserRole + 1,
-        TextRole
-    };
-
-    PresagePredictorModel(QObject *parent = 0);
-    QVariant data(const QModelIndex &index, int role) const;
-    int rowCount(const QModelIndex &parent) const;
-    QHash<int, QByteArray> roleNames() const;
-    void reload();
-
-    CapitalizationMode capitalizationMode() const;
-    void setCapitalizationMode(const CapitalizationMode &capitalizationMode);
-
-private:
-    QHash<int, QByteArray> m_roles;
-    CapitalizationMode m_capitalizationMode;
-signals:
-    void predictionsChanged();
-};
+class PresagePredictorModel; // forward declaration
 
 class PresagePredictor : public QQuickItem
 {
@@ -90,6 +60,7 @@ public:
     Q_INVOKABLE void processKeyRelease();
     Q_INVOKABLE bool isLetter(const QString & letter) const;
     Q_INVOKABLE void reactivateWord(const QString & word);
+    Q_INVOKABLE void setShiftState(int shiftState);
 
     Q_INVOKABLE void startLayout(int width, int height);
     Q_INVOKABLE void addLayoutButton(int x, int y, int width, int height, const QString &buttonText, const QString &buttonTextShifted);
@@ -119,6 +90,9 @@ private:
     bool m_backspacePressed;
     int m_backspaceCounter;
 
+    std::stringstream m_predictBuffer;
+    std::vector<std::string> m_predictedWords;
+
 private slots:
     void clearLearnedWords();
 
@@ -126,5 +100,4 @@ signals:
     void languageChanged();
     void engineChanged();
 };
-
 #endif // PRESAGEPREDICTOR_H

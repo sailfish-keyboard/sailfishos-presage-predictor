@@ -1,26 +1,27 @@
 #include "presagepredictor.h"
 
+#include <presageException.h>
 #include <stdio.h>
 
 #include <QDBusConnection>
 #include <QElapsedTimer>
 #include <QFileInfo>
-
-// globals
-std::string       suggestions;
-std::string       config;
-std::stringstream predictBuffer;
-
-std::vector<std::string> predictedWords;
+#include <QMetaEnum>
 
 PresagePredictor::PresagePredictor(QQuickItem *parent):
     QQuickItem(parent),
+    m_presage(nullptr),
     m_engine(new PresagePredictorModel()),
     m_backspacePressed(false)
 {
-    // magic starts here
-    m_callback = new PresagePredictorCallback(predictBuffer);
-    m_presage = new Presage(m_callback, config);
+    m_callback = new PresagePredictorCallback(m_predictBuffer);
+    try {
+        m_presage = new Presage(m_callback);
+    } catch (PresageException e) {
+        m_presage = nullptr;
+        log("Failed to initialize presage");
+        return;
+    }
 
     m_presage->config("Presage.Selector.SUGGESTIONS", "6");
     m_presage->config("Presage.Selector.REPEAT_SUGGESTIONS", "yes");
@@ -32,8 +33,6 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
     m_clearDataNotifier = new NotificationManager(this);
     connect(m_clearDataNotifier, &NotificationManager::clearDataRequested,
             this, &PresagePredictor::clearLearnedWords);
-
-    m_engine->setCapitalizationMode(PresagePredictorModel::NonCapitalized);
 }
 
 PresagePredictor::~PresagePredictor()
@@ -43,7 +42,8 @@ PresagePredictor::~PresagePredictor()
     while (dieTimer.elapsed() < 100) {
         qApp->processEvents(QEventLoop::AllEvents, 1);
     }
-    delete m_presage;
+    if (m_presage == nullptr)
+        delete m_presage;
 }
 
 void PresagePredictor::reset()
@@ -51,7 +51,7 @@ void PresagePredictor::reset()
     log("PresagePredictor::reset");
     m_wordBuffer.clear();
     m_contextBuffer.clear();
-    m_engine->setCapitalizationMode(PresagePredictorModel::NonCapitalized);
+    m_engine->setShiftState(PresagePredictorModel::NoShift);
     predict();
 }
 
@@ -65,6 +65,9 @@ void PresagePredictor::setContext(const QString & context)
 
 void PresagePredictor::predict()
 {
+    if (m_presage == nullptr)
+        return;
+
     // when the user continously pressing the backspace
     // the predictions would increase lag
     if (m_backspacePressed)
@@ -74,31 +77,36 @@ void PresagePredictor::predict()
     log(QString("CTX : %1").arg(m_contextBuffer));
     log(QString("Word: %1").arg(m_wordBuffer));
 
-    predictBuffer.str("");
-    predictBuffer.clear();
-    predictBuffer << m_contextBuffer.toStdString();
-    predictBuffer << m_wordBuffer.toStdString();
+    m_predictBuffer.str("");
+    m_predictBuffer.clear();
+    m_predictBuffer << m_contextBuffer.toStdString();
+    m_predictBuffer << m_wordBuffer.toStdString();
 
-    predictedWords = m_presage->predict();
-    log(QString("PresagePredictor::predicted  words count: %1").arg(predictedWords.size()));
-    m_engine->reload();
+    m_predictedWords = m_presage->predict();
+    log(QString("PresagePredictor::predicted  words count: %1").arg(m_predictedWords.size()));
+    QStringList words;
+    for(std::vector<std::string>::const_iterator i = m_predictedWords.begin(); i != m_predictedWords.end(); ++i)
+        words.append(QString::fromStdString(*i));
+    m_engine->reload(words);
 }
 
 void PresagePredictor::acceptWord(const QString &word)
 {
+    if (m_presage == nullptr)
+        return;
     log(QString("PresagePredictor::acceptWord(%1);").arg(word));
     m_presage->learn(word.toStdString());
     m_wordBuffer.clear();
-    m_engine->setCapitalizationMode(PresagePredictorModel::NonCapitalized);
 }
 
 void PresagePredictor::acceptPrediction(int index)
 {
+    if (m_presage == nullptr)
+        return;
     log(QString("PresagePredictor::acceptPrediction(%1)").arg(index));
-    if ((size_t)index < predictedWords.size()) {
-        m_presage->learn(predictedWords[index]);
+    if ((size_t)index < m_predictedWords.size()) {
+        m_presage->learn(m_predictedWords[index]);
         m_wordBuffer.clear();
-        m_engine->setCapitalizationMode(PresagePredictorModel::NonCapitalized);
     }
 }
 
@@ -107,11 +115,6 @@ void PresagePredictor::processSymbol(const QString &symbol, bool forceAdd)
     Q_UNUSED(forceAdd) // TODO consider remove it from QML too
     if (symbol.length()) {
         log(QString("PresagePredictor::processSymbol %1").arg(symbol));
-        if (m_wordBuffer.length() == 0) {
-            if (symbol.at(0).isUpper()) {
-                m_engine->setCapitalizationMode(PresagePredictorModel::FirstLetterCapitalized);
-            }
-        }
         m_wordBuffer = m_wordBuffer.append(symbol);
         predict();
     }
@@ -122,13 +125,6 @@ void PresagePredictor::processBackspace()
     log(QString("PresagePredictor::processBackspace"));
     if (m_wordBuffer.length() > 0) {
         m_wordBuffer = m_wordBuffer.left(m_wordBuffer.length() - 1);
-        if (m_wordBuffer.length() == 0) {
-            // we have just erased a whole word switch back to NonCapitalized mode
-            // TODO it might be useful to analyze the context's last nonwhitespace character
-            // if it is a sentence end (.?!)
-            // it might be better to push it down to the Presage
-            m_engine->setCapitalizationMode(PresagePredictorModel::NonCapitalized);
-        }
         predict();
         if (m_backspacePressed)
             m_backspaceCounter++;
@@ -158,12 +154,11 @@ void PresagePredictor::reactivateWord(const QString &word)
 {
     log(QString("PresagePredictor::reactivateWord(%1)").arg(word));
     m_wordBuffer = word;
+}
 
-    if (m_wordBuffer.length() && m_wordBuffer.at(0).isUpper()) {
-        m_engine->setCapitalizationMode(PresagePredictorModel::FirstLetterCapitalized);
-    } else {
-        m_engine->setCapitalizationMode(PresagePredictorModel::NonCapitalized);
-    }
+void PresagePredictor::setShiftState(int shiftState)
+{
+    m_engine->setShiftState((PresagePredictorModel::ShiftState)shiftState);
 }
 
 void PresagePredictor::startLayout(int width, int height)
@@ -189,6 +184,9 @@ QString PresagePredictor::language() const
 
 void PresagePredictor::setLanguage(const QString &language)
 {
+    if (m_presage == nullptr)
+        return;
+
     log(QString("PresagePredictor::setLanguage(%1)").arg(language));
     if (m_language != language) {
         m_language = language;
@@ -196,10 +194,10 @@ void PresagePredictor::setLanguage(const QString &language)
         if (QFileInfo::exists(dbFileName)) {
             try {
                 m_presage->config("Presage.Predictors.DefaultSmoothedNgramPredictor.DBFILENAME",  dbFileName.toLatin1().constData());
-            } catch (PresageException) {
-
+            } catch (PresageException e) {
                 return;
             }
+
             emit languageChanged();
         }
     }
@@ -228,72 +226,4 @@ void PresagePredictor::log(const QString &log)
 void PresagePredictor::clearLearnedWords()
 {
     log("PresagePredictor::clear learned words");
-}
-
-
-PresagePredictorModel::PresagePredictorModel(QObject *parent) :
-    QAbstractListModel(parent)
-{
-    m_roles[IndexRole] = "index";
-    m_roles[TextRole] = "text";
-}
-
-QVariant PresagePredictorModel::data(const QModelIndex &index, int role) const
-{
-    if (role == IndexRole)
-        return index.row();
-    if (role == TextRole) {
-        if ((size_t)index.row() < predictedWords.size()) {
-            switch (m_capitalizationMode) {
-            case NonCapitalized:
-                return QString::fromStdString(predictedWords[index.row()]);
-                break;
-            case FirstLetterCapitalized: {
-                QString ret = QString::fromStdString(predictedWords[index.row()]);
-                if (ret.length()) {
-                    return ret.replace(0, 1, ret.at(0).toUpper());
-                }
-            } break;
-            case AllLettersCapitalized:
-                return QString::fromStdString(predictedWords[index.row()]).toUpper();
-                break;
-            }
-        }
-    }
-    return QVariant();
-}
-
-int PresagePredictorModel::rowCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return 0;
-    return predictedWords.size();
-}
-
-QHash<int, QByteArray> PresagePredictorModel::roleNames() const
-{
-    return m_roles;
-}
-
-void PresagePredictorModel::reload()
-{
-    beginResetModel();
-    endResetModel();
-
-    beginInsertRows(QModelIndex(), 0, predictedWords.size());
-    endInsertRows();
-    emit predictionsChanged();
-}
-
-PresagePredictorModel::CapitalizationMode PresagePredictorModel::capitalizationMode() const
-{
-    return m_capitalizationMode;
-}
-
-void PresagePredictorModel::setCapitalizationMode(const CapitalizationMode &capitalizationMode)
-{
-    if (m_capitalizationMode != capitalizationMode) {
-        m_capitalizationMode = capitalizationMode;
-        reload();
-    }
 }

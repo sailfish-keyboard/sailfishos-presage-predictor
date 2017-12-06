@@ -8,5 +8,6 @@ void PresagePredictorPlugin::registerTypes(const char *uri)
     // @uri hu.mm.PresagePredictor
     qRegisterMetaType<PresagePredictorModel*>("PresagePredictorModel");
     qmlRegisterType<PresagePredictor>(uri, 1, 0, "PresagePredictor");
+    qmlRegisterType<PresagePredictorModel>(uri, 1, 0, "PresagePredictorModel");
 }
 

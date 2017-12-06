@@ -17,10 +17,12 @@
 
 
 %define py_ver %(python -c "import sys; v=sys.version_info[:2]; print '%%d.%%d'%%v" 2>/dev/null || echo PYTHON-NOT-FOUND)
+%define _unpackaged_files_terminate_build 0 
+%define __spec_install_pre /bin/true
 
 Name:           presage
 Version:        0.9.1
-Release:        7.28
+Release:        7.29
 Summary:        Intelligent predictive text entry platform (tools and demos)
 License:        GPL-2.0
 Group:          Productivity/Text/Utilities
@@ -81,7 +83,17 @@ Obsoletes:      libpresage-data < %{version}
 %description -n presage-data
 Presage is an intelligent predictive text entry platform.
 
-This package contains the sample statistical data files and abbreviation files needed by presage.
+This package contains the global configuration file needed by the presage.
+
+%package -n presage-data-hu
+Summary:        Hungarian ngram databases
+Group:          System/Libraries
+Provides:       libpresage-data-hu = %{version}
+
+%description -n presage-data-hu
+Presage is an intelligent predictive text entry platform.
+
+This package contains the Hungarian ngram database.
 
 %package -n libpresage-doc
 Summary:        Intelligent predictive text entry platform (documentation)
@@ -142,8 +154,13 @@ rm -rf %{buildroot}%{_libdir}/*.la
 %files -n presage-data
 %defattr(-,root,root)
 %config %{_sysconfdir}/presage.xml
+%exclude %{_datadir}/presage
 %exclude %{_datadir}/presage/html
 %exclude %{_datadir}/presage/getting_started.txt
+
+%files -n presage-data-hu
+%defattr(-,root,root)
+%{_datadir}/presage/database_hu.db
 
 %files -n libpresage-doc
 %defattr(-,root,root)

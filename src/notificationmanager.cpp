@@ -14,7 +14,7 @@ class NotificationManagerPrivate
 public:
     NotificationManagerPrivate(NotificationManager *q)
         : q_ptr(q),
-          interface(NULL),
+          interface(nullptr),
           connected(false)
     { /*...*/ }
 

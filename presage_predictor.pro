@@ -1,7 +1,11 @@
+TEMPLATE = lib
 TARGET = PresagePredictor
-QT += qml dbus
+CONFIG += qt plugin c++11
+QT += qml quick dbus
 QT -= gui network
 
+TARGET = $$qtLibraryTarget($$TARGET)
+uri = hu.mm.presagepredictor
 
 OBJECTS_DIR = build
 MOC_DIR = build
@@ -9,20 +13,17 @@ UI_DIR = build
 RCC_DIR=build
 DESTDIR = bin
 
-uri = hu.mm.presagepredictor
-
-TEMPLATE = lib
-CONFIG += qt plugin
-
 SOURCES += \
     src/presagepredictor.cpp \
     src/plugin.cpp \
-    src/notificationmanager.cpp
+    src/notificationmanager.cpp \
+    src/presagepredictormodel.cpp
 
 HEADERS += \
     src/presagepredictor.h \
     src/plugin.h \
-    src/notificationmanager.h
+    src/notificationmanager.h \
+    src/presagepredictormodel.h
 
 LIBS += -lpresage
 

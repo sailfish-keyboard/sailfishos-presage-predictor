@@ -19,10 +19,10 @@ InputHandler {
         // note: also china language codes being set with this, assume xt9 model just ignores such
         language: layoutRow.layout ? layoutRow.layout.languageCode : ""
 
-        /*property int shiftState: keyboard.isShifted ? (keyboard.isShiftLocked ? Xt9Model.ShiftLocked
-                                                                              : Xt9Model.ShiftLatched)
-                                                    : Xt9Model.NoShift*/
-        //onShiftStateChanged: setShiftState(shiftState)
+        property int shiftState: keyboard.isShifted ? (keyboard.isShiftLocked ? PresagePredictorModel.ShiftLocked
+                                                                              : PresagePredictorModel.ShiftLatched)
+                                                    : PresagePredictorModel.NoShift
+        onShiftStateChanged: setShiftState(shiftState)
 
         function abort(word) {
             var oldPreedit = presageHandler.preedit
@@ -296,6 +296,7 @@ InputHandler {
 
     function handleKeyRelease() {
         thread.processKeyRelease()
+        thread.setShiftState(keyboard.isShifted, keyboard.isShiftLocked)
     }
 
     function handleKeyClick() {
