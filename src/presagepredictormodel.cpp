@@ -50,12 +50,9 @@ QHash<int, QByteArray> PresagePredictorModel::roleNames() const
 
 void PresagePredictorModel::reload(const QStringList predictedWords)
 {
-    m_predictedWords = predictedWords;
     beginResetModel();
+    m_predictedWords = predictedWords;
     endResetModel();
-
-    beginInsertRows(QModelIndex(), 0, m_predictedWords.size());
-    endInsertRows();
     emit predictionsChanged();
 }
 
