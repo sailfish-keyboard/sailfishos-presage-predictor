@@ -167,7 +167,15 @@ void PresagePredictor::reactivateWord(const QString &word)
             m_shiftState = NoShift;
         }
     }
+
+    if (m_shiftState == NoShift) {
+        if (word.length() && word.at(0).isUpper()) {
+            m_engine->setCapitalizationMode((PresagePredictorModel::FirstCapital));
+            m_shiftState = ShiftLockedByWordStart;
+        }
+    }
     m_wordBuffer = word;
+    predict();
 }
 
 void PresagePredictor::setShiftState(ShiftState shiftState)
