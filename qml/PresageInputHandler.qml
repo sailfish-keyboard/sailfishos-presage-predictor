@@ -106,6 +106,7 @@ InputHandler {
                 Connections {
                     target: thread.engine
                     onPredictionsChanged: {
+                        console.log()
                         predictionList.positionViewAtBeginning()
                     }
                 }
@@ -296,7 +297,6 @@ InputHandler {
 
     function handleKeyRelease() {
         thread.processKeyRelease()
-        thread.setShiftState(keyboard.isShifted, keyboard.isShiftLocked)
     }
 
     function handleKeyClick() {

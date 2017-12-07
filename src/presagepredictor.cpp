@@ -52,7 +52,6 @@ void PresagePredictor::reset()
     log("PresagePredictor::reset");
     m_wordBuffer.clear();
     m_contextBuffer.clear();
-    m_engine->setCapitalizationMode(PresagePredictorModel::NonCapital);
     predict();
 }
 
@@ -126,6 +125,14 @@ void PresagePredictor::processBackspace()
     log(QString("PresagePredictor::processBackspace"));
     if (m_wordBuffer.length() > 0) {
         m_wordBuffer = m_wordBuffer.left(m_wordBuffer.length() - 1);
+
+        if (m_shiftState == ShiftLockedByWordStart) {
+            if (m_wordBuffer.length() == 0) {
+                m_engine->setCapitalizationMode((PresagePredictorModel::NonCapital));
+                m_shiftState = NoShift;
+            }
+        }
+
         predict();
         if (m_backspacePressed)
             m_backspaceCounter++;
@@ -154,6 +161,12 @@ bool PresagePredictor::isLetter(const QString & letter) const
 void PresagePredictor::reactivateWord(const QString &word)
 {
     log(QString("PresagePredictor::reactivateWord(%1)").arg(word));
+    if (m_shiftState == ShiftLockedByWordStart) {
+        if (!(word.length() && word.at(0).isUpper())) {
+            m_engine->setCapitalizationMode((PresagePredictorModel::NonCapital));
+            m_shiftState = NoShift;
+        }
+    }
     m_wordBuffer = word;
 }
 
@@ -167,6 +180,7 @@ void PresagePredictor::setShiftState(ShiftState shiftState)
             // since this is what is expected
             if (m_wordBuffer.length() && m_wordBuffer.at(0).isUpper()) {
                 m_engine->setCapitalizationMode((PresagePredictorModel::FirstCapital));
+                m_shiftState = ShiftLockedByWordStart;
                 return;
             }
         }

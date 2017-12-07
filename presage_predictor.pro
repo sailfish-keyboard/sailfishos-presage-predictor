@@ -29,7 +29,8 @@ LIBS += -lpresage
 
 DISTFILES += qmldir \
     rpm/PresagePredictor.yaml \
-    qml/PresageInputHandler.qml
+    qml/PresageInputHandler.qml \
+    rpm/presage_predictor.spec
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir

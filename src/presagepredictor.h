@@ -50,7 +50,8 @@ public:
     enum ShiftState {
         NoShift,
         ShiftLocked,
-        ShiftLatched
+        ShiftLatched,
+        ShiftLockedByWordStart
     };
     Q_ENUM(ShiftState)
 
