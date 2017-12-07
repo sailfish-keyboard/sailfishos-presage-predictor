@@ -106,8 +106,13 @@ void PresagePredictor::acceptPrediction(int index)
         return;
     log(QString("PresagePredictor::acceptPrediction(%1)").arg(index));
     if ((size_t)index < m_predictedWords.size()) {
-        m_presage->learn(m_predictedWords[index]);
         m_wordBuffer.clear();
+
+        if (m_shiftState == ShiftLatchedByWordStart ||
+            m_shiftState == ShiftLockedByWordStart) {
+            m_shiftState = NoShift;
+            setEngineCapitalization(m_shiftState);
+        }
     }
 }
 
