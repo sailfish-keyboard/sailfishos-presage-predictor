@@ -13,7 +13,8 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
     m_presage(nullptr),
     m_engine(new PresagePredictorModel()),
     m_backspacePressed(false),
-    m_shiftState(NoShift)
+    m_shiftState(NoShift),
+    m_presageInitialized(false)
 {
     m_callback = new PresagePredictorCallback(m_predictBuffer);
     try {
@@ -65,7 +66,7 @@ void PresagePredictor::setContext(const QString & context)
 
 void PresagePredictor::predict()
 {
-    if (m_presage == nullptr)
+    if (m_presage == nullptr || !m_presageInitialized)
         return;
 
     // when the user continously pressing the backspace
@@ -158,53 +159,69 @@ bool PresagePredictor::isLetter(const QString & letter) const
     return letter.at(0).isLetter();
 }
 
+PresagePredictor::ShiftState PresagePredictor::shiftStateFromWordContents(const QString &word)
+{
+    ShiftState ret = NoShift;
+    if (word.length() && word.at(0).isUpper()) {
+        // if the specific word's all characters are upper case
+        // predict all capital predictions
+        if (word.length() > 1) {
+            bool allUpper = true;
+            for (int i = 1; i<word.length(); i++) {
+                if (!word.at(i).isUpper()) {
+                    allUpper = false;
+                    break;
+                }
+            }
+            ret = allUpper ? ShiftLockedByWordStart : ShiftLatchedByWordStart;
+        } else {
+            // a single capital letter reactivated
+            ret = ShiftLatchedByWordStart;
+        }
+    }
+    return ret;
+}
+
 void PresagePredictor::reactivateWord(const QString &word)
 {
     log(QString("PresagePredictor::reactivateWord(%1)").arg(word));
-    if (m_shiftState == ShiftLockedByWordStart) {
-        if (!(word.length() && word.at(0).isUpper())) {
-            m_engine->setCapitalizationMode((PresagePredictorModel::NonCapital));
-            m_shiftState = NoShift;
-        }
-    }
 
-    if (m_shiftState == NoShift) {
-        if (word.length() && word.at(0).isUpper()) {
-            m_engine->setCapitalizationMode((PresagePredictorModel::FirstCapital));
-            m_shiftState = ShiftLockedByWordStart;
-        }
-    }
+    m_shiftState = shiftStateFromWordContents(word);
+    setEngineCapitalization(m_shiftState);
     m_wordBuffer = word;
     predict();
+}
+
+void PresagePredictor::setEngineCapitalization(const ShiftState shiftState)
+{
+    switch (shiftState) {
+    case NoShift:
+        m_engine->setCapitalizationMode(PresagePredictorModel::NonCapital);
+        break;
+    case ShiftLatchedByWordStart:
+    case ShiftLatched:
+        m_engine->setCapitalizationMode(PresagePredictorModel::FirstCapital);
+        break;
+    case ShiftLockedByWordStart:
+    case ShiftLocked:
+        m_engine->setCapitalizationMode(PresagePredictorModel::AllCapital);
+        break;
+    }
 }
 
 void PresagePredictor::setShiftState(ShiftState shiftState)
 {
     qDebug() << "PresagePredictor::setShiftState(" << QMetaEnum::fromType<ShiftState>().valueToKey(shiftState) << ")";
     if (m_shiftState != shiftState) {
-        if (m_shiftState == ShiftLatched && shiftState == NoShift) {
+        if (m_shiftState == ShiftLatched && shiftState == NoShift &&
+            m_wordBuffer.length() == 1  && m_wordBuffer.at(0).isUpper()) {
             // when starting a word with latched shift with capital letter
             // sink the shiftchange to noncapital and fool the model with firstcapital mode
-            // since this is what is expected
-            if (m_wordBuffer.length() && m_wordBuffer.at(0).isUpper()) {
-                m_engine->setCapitalizationMode((PresagePredictorModel::FirstCapital));
-                m_shiftState = ShiftLockedByWordStart;
-                return;
-            }
+            m_shiftState = ShiftLatchedByWordStart;
+        } else {
+            m_shiftState = shiftState;
         }
-        m_shiftState = shiftState;
-
-        switch (m_shiftState) {
-        case NoShift:
-            m_engine->setCapitalizationMode(PresagePredictorModel::NonCapital);
-            break;
-        case ShiftLatched:
-            m_engine->setCapitalizationMode(PresagePredictorModel::FirstCapital);
-            break;
-        case ShiftLocked:
-            m_engine->setCapitalizationMode(PresagePredictorModel::AllCapital);
-            break;
-        }
+        setEngineCapitalization(m_shiftState);
     }
 }
 
@@ -246,7 +263,10 @@ void PresagePredictor::setLanguage(const QString &language)
                 return;
             }
 
+            m_presageInitialized = true;
             emit languageChanged();
+        } else {
+            m_presageInitialized = false;
         }
     }
 }

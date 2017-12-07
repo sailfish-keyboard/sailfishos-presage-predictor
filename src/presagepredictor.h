@@ -51,7 +51,8 @@ public:
         NoShift,
         ShiftLocked,
         ShiftLatched,
-        ShiftLockedByWordStart
+        ShiftLockedByWordStart,
+        ShiftLatchedByWordStart
     };
     Q_ENUM(ShiftState)
 
@@ -84,6 +85,9 @@ public:
 
     void predict();
 
+    ShiftState shiftStateFromWordContents(const QString &word);
+
+
 private:
     PresageCallback* m_callback;
     Presage *m_presage;
@@ -101,6 +105,9 @@ private:
 
     std::stringstream m_predictBuffer;
     std::vector<std::string> m_predictedWords;
+    void setEngineCapitalization(const ShiftState shiftState);
+
+    bool m_presageInitialized;
 
 private slots:
     void clearLearnedWords();
