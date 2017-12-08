@@ -68,6 +68,10 @@ rm -rf %{buildroot}
 # << files
 
 %changelog
+* Thu Dec 07 2017 Miklos Marton <martonmiklosqdev@gmail.com> 1.0.4
+- Fixed crash when language with non installed prediction database were seleced
+- Making predictions capitalization to follow the context better
+- Fixed model reset bug which caused displaying the predictions multiple times
 * Wed Dec 06 2017 Miklos Marton <martonmiklosqdev@gmail.com> 1.0.3
 - After starting a word with capital letter the predictions will offered with first capital letter
 * Wed Dec 06 2017 Miklos Marton <martonmiklosqdev@gmail.com> 1.0.2

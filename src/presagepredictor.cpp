@@ -91,13 +91,30 @@ void PresagePredictor::predict()
     m_engine->reload(words);
 }
 
+
+/**
+ * @brief PresagePredictor::acceptWord
+ *
+ * This method is called when a non-symbol characted (space, return, etc.)
+ * is pressed after the wordbuffer is non-empty.
+ *
+ * @param word
+ */
 void PresagePredictor::acceptWord(const QString &word)
 {
     if (m_presage == nullptr)
         return;
     log(QString("PresagePredictor::acceptWord(%1);").arg(word));
     m_presage->learn(word.toStdString());
+    if (m_shiftState == ShiftLatchedByWordStart ||
+        m_shiftState == ShiftLockedByWordStart) {
+        // if we have had prediction capitalization due the wordbuffer contents switch it off
+        // since we have finished the word editing
+        m_shiftState = NoShift;
+        setEngineCapitalization(m_shiftState);
+    }
     m_wordBuffer.clear();
+    predict();
 }
 
 void PresagePredictor::acceptPrediction(int index)
