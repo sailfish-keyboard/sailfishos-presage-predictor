@@ -7,12 +7,6 @@ QT -= gui network
 TARGET = $$qtLibraryTarget($$TARGET)
 uri = hu.mm.presagepredictor
 
-OBJECTS_DIR = build
-MOC_DIR = build
-UI_DIR = build
-RCC_DIR=build
-DESTDIR = bin
-
 SOURCES += \
     src/presagepredictor.cpp \
     src/plugin.cpp \
@@ -49,6 +43,3 @@ inputhandler.files = $$_PRO_FILE_PWD_/qml/PresageInputHandler.qml
 inputhandler.path = /usr/share/maliit/plugins/com/jolla
 
 INSTALLS += target qmldir inputhandler
-
-INCLUDEPATH += /usr/include/c++/4.8.5/ # it is a hack until I figure out how to add the SDK's patshs to the QtCreator
-INCLUDEPATH += /home/mm/Projektek/jolla/keyboard/presage_predictor/presage/src/lib/ # it is a hack until I figure out how to add the SDK's patshs to the QtCreator
