@@ -22,7 +22,6 @@ Source0:    %{name}-%{version}.tar.bz2
 Source100:  presage_predictor.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
 Requires:   jolla-keyboard
-Requires:   libpresage1
 Requires:   presage-data
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)

@@ -34,7 +34,6 @@ PkgBR:
 Requires:
   - sailfishsilica-qt5 >= 0.10.9 
   - jolla-keyboard
-  - libpresage1
   - presage-data
 
 # All installed files
