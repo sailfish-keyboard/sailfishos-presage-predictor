@@ -24,6 +24,8 @@ LIBS += -lpresage
 DISTFILES += qmldir \
     rpm/PresagePredictor.yaml \
     qml/PresageInputHandler.qml \
+    rpm/presage_predictor.yaml \
+    rpm/presage_predictor.changes \
     rpm/presage_predictor.spec
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
