@@ -5,6 +5,9 @@
 
 Name:       presage_predictor
 
+# >> macros
+# << macros
+
 %{!?qtc_qmake:%define qtc_qmake %qmake}
 %{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
 %{!?qtc_make:%define qtc_make make}
@@ -25,16 +28,8 @@ BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5DBus)
+BuildRequires:  pkgconfig(sqlite3)
 BuildRequires:  libpresage-devel
-
-# >> macros
-%post
-/bin/systemctl --user restart maliit-server.service
-exit 0
-%postun
-/bin/systemctl --user restart maliit-server.service
-exit 0
-# << macros
 
 %description
 Keyboard prediction plugin based on the Presage prediction engine
