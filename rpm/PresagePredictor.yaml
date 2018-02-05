@@ -1,7 +1,7 @@
 Name: presage_predictor
 Summary: PresagePredictor
 Version: 1.0
-Release: 1
+Release: 7
 # The contents of the Group field should be one of the groups listed here:
 # http://gitorious.org/meego-developer-tools/spectacle/blobs/master/data/GROUPS
 Group: Applications/Text
@@ -33,7 +33,7 @@ PkgBR:
 Requires:
   - sailfishsilica-qt5 >= 0.10.9 
   - jolla-keyboard
-  - libpresage1
+  - libpresage1 >= 0.9.1-7.30
   - presage-data
 
 # All installed files

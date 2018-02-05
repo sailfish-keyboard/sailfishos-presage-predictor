@@ -14,7 +14,7 @@ Name:       presage_predictor
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    PresagePredictor
 Version:    1.0
-Release:    4
+Release:    7
 Group:      Applications/Text
 License:    LICENSE
 URL:        http://example.org/
@@ -22,7 +22,7 @@ Source0:    %{name}-%{version}.tar.bz2
 Source100:  presage_predictor.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
 Requires:   jolla-keyboard
-Requires:   libpresage1
+Requires:   libpresage1 >= 0.9.1-7.30
 Requires:   presage-data
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
@@ -67,7 +67,20 @@ rm -rf %{buildroot}
 # >> files
 # << files
 
+# >> macros
+%post
+/bin/systemctl --user restart maliit-server.service
+exit 0
+%postun
+/bin/systemctl --user restart maliit-server.service
+exit 0
+# << macros
+
 %changelog
+* Mon Dec 11 2017 Miklos Marton <martonmiklosqdev@gmail.com> 1.0.6
+- Run maliit-service restart after the RPM installation/removal
+* Fri Dec 08 2017 Miklos Marton <martonmiklosqdev@gmail.com> 1.0.5
+- Switching back to noncapital mode after accepting a word
 * Thu Dec 07 2017 Miklos Marton <martonmiklosqdev@gmail.com> 1.0.4
 - Fixed crash when language with non installed prediction database were seleced
 - Making predictions capitalization to follow the context better

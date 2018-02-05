@@ -25,9 +25,6 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
         return;
     }
 
-    m_presage->config("Presage.Selector.SUGGESTIONS", "6");
-    m_presage->config("Presage.Selector.REPEAT_SUGGESTIONS", "yes");
-
     // Jolla settings page will call the
     // /com/jolla/keyboard clearData method once the
     // Clear learned word is pressed
@@ -285,6 +282,9 @@ void PresagePredictor::setLanguage(const QString &language)
                 return;
             }
 
+            // TODO: it might not be the best idea to hardcode the user dir here, but for SFOS it is going to be the user dir
+            m_presage->config("Presage.Predictors.UserSmoothedNgramPredictor.DBFILENAME",
+                              QString("/home/nemo/.presage/lm_%1.db").arg(language.toLower()).toLatin1().constData());
             m_presageInitialized = true;
             emit languageChanged();
         } else {

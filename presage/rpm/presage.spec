@@ -22,7 +22,7 @@
 
 Name:           presage
 Version:        0.9.1
-Release:        7.29
+Release:        7.31
 Summary:        Intelligent predictive text entry platform (tools and demos)
 License:        GPL-2.0
 Group:          Productivity/Text/Utilities
@@ -168,47 +168,4 @@ rm -rf %{buildroot}%{_libdir}/*.la
 %{_datadir}/presage/getting_started.txt
 
 %changelog
-* Wed Feb 08 2017 Miklos Marton <martonmiklosqdev@gmail.com> 2.1.0-0.0.3
-* Sun Aug 23 2015 i@marguerite.su
-- update version 0.9.1
-  * see NEWS
-- drop: presage-0.9-automake-1.14.patch
-- drop: presage-0.9.0-automake_1.12_abuild.patch
-- add:  presage-0.9.1-automake-1.12.patch
-- add:  presage-0.9.1-automake-1.14.patch
-- drop: presage-swig-3.0.patch,upstreamed
-* Mon Jan 26 2015 dimstar@opensuse.org
-- Add presage-swig-3.0.patch: Fix build with SWIG 3.0.
-* Mon Oct 27 2014 i@marguerite.su
-- fix build for factory
-  * add patch: presage-0.9-automake-1.14.patch
-  * automake 1.14 starts to check subdir-objects.
-* Tue Jun 10 2014 i@marguerite.su
-- update version 0.9.beta20140216
-  * see ChangeLog file
-- drop patch: presage-0.8.9-automake_1.12_abuild.patch
-- add patch: presage-0.9.0-automake_1.12_abuild.patch
-* Tue Sep 24 2013 i@marguerite.su
-- update version 0.8.9
-  * a minor bugfix release
-  * see Changelog and News for details
-* Wed Jul  3 2013 i@marguerite.su
-- update version 0.8.9.beta20130208
-  * see ChangeLog for details
-* Thu Sep 20 2012 i@marguerite.su
-- fix build after autoreconf -fi using automake 1.12
-  * presage_automake_1.12.abuild.patch
-* Wed Sep 19 2012 i@marguerite.su
-- fix cmuclmtk command in arpa.
-  * patch1: presage_cmuclmtk.patch
-  * port old CMU-Statistical Language Modelling tools to its
-    successor CMU-Cambridge Statistical Language Modeling Toolkit v2
-    (cmuclmtk)
-* Tue Sep 18 2012 jzheng@suse.com
-- fix ncurses check flag
-- fix fedora flag in spec and remove unnecessary if
-* Thu Sep 13 2012 i@marguerite.su
-- support fedora builds.
-* Sun Jun  3 2012 i@marguerite.su
-- initial version 0.8.8
-  * see ChangeLog and News for details.
+
