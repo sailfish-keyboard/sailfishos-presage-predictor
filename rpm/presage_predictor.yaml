@@ -24,6 +24,7 @@ PkgConfigBR:
   - Qt5Core
   - Qt5Qml
   - Qt5Quick
+  - Qt5DBus
 
 # Build dependencies without a pkgconfig setup can be listed here
 PkgBR:
@@ -33,7 +34,6 @@ PkgBR:
 Requires:
   - sailfishsilica-qt5 >= 0.10.9 
   - jolla-keyboard
-  - libpresage1 >= 0.9.1-7.30
   - presage-data
 
 # All installed files
