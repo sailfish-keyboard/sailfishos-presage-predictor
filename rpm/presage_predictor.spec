@@ -5,9 +5,6 @@
 
 Name:       presage_predictor
 
-# >> macros
-# << macros
-
 %{!?qtc_qmake:%define qtc_qmake %qmake}
 %{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
 %{!?qtc_make:%define qtc_make make}
@@ -16,8 +13,8 @@ Summary:    PresagePredictor
 Version:    1.0
 Release:    7
 Group:      Applications/Text
-License:    LICENSE
-URL:        http://example.org/
+License:    GPLv3
+URL:        https://github.com/martonmiklos/sailfishos-presage-predictor
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  presage_predictor.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
@@ -29,6 +26,15 @@ BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5DBus)
 BuildRequires:  libpresage-devel
+
+# >> macros
+%post
+/bin/systemctl --user restart maliit-server.service
+exit 0
+%postun
+/bin/systemctl --user restart maliit-server.service
+exit 0
+# << macros
 
 %description
 Keyboard prediction plugin based on the Presage prediction engine
@@ -66,12 +72,3 @@ rm -rf %{buildroot}
 %{_datadir}/maliit/plugins/com/jolla/PresageInputHandler.qml
 # >> files
 # << files
-
-# >> macros
-%post
-/bin/systemctl --user restart maliit-server.service
-exit 0
-%postun
-/bin/systemctl --user restart maliit-server.service
-exit 0
-# << macros
