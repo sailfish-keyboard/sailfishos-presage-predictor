@@ -22,12 +22,12 @@ Source0:    %{name}-%{version}.tar.bz2
 Source100:  presage_predictor.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
 Requires:   jolla-keyboard
-Requires:   libpresage1 >= 0.9.1-7.30
 Requires:   presage-data
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
+BuildRequires:  pkgconfig(Qt5DBus)
 BuildRequires:  libpresage-devel
 
 %description
@@ -75,17 +75,3 @@ exit 0
 /bin/systemctl --user restart maliit-server.service
 exit 0
 # << macros
-
-%changelog
-* Mon Dec 11 2017 Miklos Marton <martonmiklosqdev@gmail.com> 1.0.6
-- Run maliit-service restart after the RPM installation/removal
-* Fri Dec 08 2017 Miklos Marton <martonmiklosqdev@gmail.com> 1.0.5
-- Switching back to noncapital mode after accepting a word
-* Thu Dec 07 2017 Miklos Marton <martonmiklosqdev@gmail.com> 1.0.4
-- Fixed crash when language with non installed prediction database were seleced
-- Making predictions capitalization to follow the context better
-- Fixed model reset bug which caused displaying the predictions multiple times
-* Wed Dec 06 2017 Miklos Marton <martonmiklosqdev@gmail.com> 1.0.3
-- After starting a word with capital letter the predictions will offered with first capital letter
-* Wed Dec 06 2017 Miklos Marton <martonmiklosqdev@gmail.com> 1.0.2
-- Predictor now should capitalize the predictions according to the keyboard's shift state
