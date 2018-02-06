@@ -60,6 +60,16 @@ rm -rf %{buildroot}
 # >> install post
 # << install post
 
+%post
+# >> post
+su - nemo -c "/bin/systemctl --user restart maliit-server.service"
+# << post
+
+%postun
+# >> postun
+su - nemo -c "/bin/systemctl --user restart maliit-server.service"
+# << postun
+
 %files
 %defattr(-,root,root,-)
 %{_libdir}/qt5/qml/hu/mm/presagepredictor/libPresagePredictor.so
