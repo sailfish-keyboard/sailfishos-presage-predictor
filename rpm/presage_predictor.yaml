@@ -5,8 +5,8 @@ Release: 7
 # The contents of the Group field should be one of the groups listed here:
 # http://gitorious.org/meego-developer-tools/spectacle/blobs/master/data/GROUPS
 Group: Applications/Text
-URL: http://example.org/
-License: LICENSE
+URL: https://github.com/martonmiklos/sailfishos-presage-predictor
+License: GPLv3
 # This must be generated before uploading a package to a remote build service.
 # Usually this line does not need to be modified.
 Sources:
@@ -25,6 +25,7 @@ PkgConfigBR:
   - Qt5Qml
   - Qt5Quick
   - Qt5DBus
+  - sqlite3
 
 # Build dependencies without a pkgconfig setup can be listed here
 PkgBR:

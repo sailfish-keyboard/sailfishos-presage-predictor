@@ -19,7 +19,7 @@ HEADERS += \
     src/notificationmanager.h \
     src/presagepredictormodel.h
 
-LIBS += -lpresage
+LIBS += -lpresage -lsqlite3
 
 DISTFILES += qmldir \
     rpm/PresagePredictor.yaml \

@@ -16,8 +16,8 @@ Summary:    PresagePredictor
 Version:    1.0
 Release:    7
 Group:      Applications/Text
-License:    LICENSE
-URL:        http://example.org/
+License:    GPLv3
+URL:        https://github.com/martonmiklos/sailfishos-presage-predictor
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  presage_predictor.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
@@ -28,6 +28,7 @@ BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5DBus)
+BuildRequires:  pkgconfig(sqlite3)
 BuildRequires:  libpresage-devel
 
 %description
@@ -59,6 +60,16 @@ rm -rf %{buildroot}
 # >> install post
 # << install post
 
+%post
+# >> post
+su - nemo -c "/bin/systemctl --user restart maliit-server.service"
+# << post
+
+%postun
+# >> postun
+su - nemo -c "/bin/systemctl --user restart maliit-server.service"
+# << postun
+
 %files
 %defattr(-,root,root,-)
 %{_libdir}/qt5/qml/hu/mm/presagepredictor/libPresagePredictor.so
@@ -66,12 +77,3 @@ rm -rf %{buildroot}
 %{_datadir}/maliit/plugins/com/jolla/PresageInputHandler.qml
 # >> files
 # << files
-
-# >> macros
-%post
-/bin/systemctl --user restart maliit-server.service
-exit 0
-%postun
-/bin/systemctl --user restart maliit-server.service
-exit 0
-# << macros
