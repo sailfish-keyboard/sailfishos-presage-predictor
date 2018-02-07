@@ -7,11 +7,14 @@
 #include <QElapsedTimer>
 #include <QFileInfo>
 #include <QMetaEnum>
+#include <QStandardPaths>
+
 
 PresagePredictor::PresagePredictor(QQuickItem *parent):
     QQuickItem(parent),
+    m_callback(nullptr),
     m_presage(nullptr),
-    m_engine(new PresagePredictorModel()),
+    m_engine(new PresagePredictorModel(this)),
     m_backspacePressed(false),
     m_shiftState(NoShift),
     m_presageInitialized(false)
@@ -21,7 +24,7 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
         m_presage = new Presage(m_callback);
     } catch (PresageException e) {
         m_presage = nullptr;
-        log("Failed to initialize presage");
+        log(QString("Failed to initialize presage: ") + e.what());
         return;
     }
 
@@ -36,13 +39,10 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
 
 PresagePredictor::~PresagePredictor()
 {
-    QElapsedTimer dieTimer;
-    dieTimer.start();
-    while (dieTimer.elapsed() < 100) {
-        qApp->processEvents(QEventLoop::AllEvents, 1);
-    }
-    if (m_presage == nullptr)
+    if (m_presage != nullptr)
         delete m_presage;
+    if (m_callback != nullptr)
+        delete m_callback;
 }
 
 void PresagePredictor::reset()
@@ -283,8 +283,12 @@ void PresagePredictor::setLanguage(const QString &language)
             }
 
             // TODO: it might not be the best idea to hardcode the user dir here, but for SFOS it is going to be the user dir
+
+            QString userdb =
+                QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
+                QString("/presage/lm_%1.db").arg(language.toLower());
             m_presage->config("Presage.Predictors.UserSmoothedNgramPredictor.DBFILENAME",
-                              QString("/home/nemo/.presage/lm_%1.db").arg(language.toLower()).toLatin1().constData());
+                              userdb.toLatin1().constData());
             m_presageInitialized = true;
             emit languageChanged();
         } else {

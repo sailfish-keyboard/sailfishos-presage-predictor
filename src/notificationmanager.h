@@ -21,13 +21,13 @@ public:
 
     QDBusInterface* interface() const;
 
-Q_SIGNALS:
+signals:
     void clearDataRequested();
 
-public Q_SLOTS:
+public slots:
     uint clearData();
 
-protected Q_SLOTS:
+protected slots:
     void initialize();
 
 private:

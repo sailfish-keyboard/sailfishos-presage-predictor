@@ -80,6 +80,8 @@ public:
 
     PresagePredictorModel *engine() const;
 
+protected:
+
     QStringList predictions() const;
     void setPredictions(const QStringList &predictions);
 
