@@ -282,8 +282,6 @@ void PresagePredictor::setLanguage(const QString &language)
                 return;
             }
 
-            // TODO: it might not be the best idea to hardcode the user dir here, but for SFOS it is going to be the user dir
-
             QString userdb =
                 QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
                 QString("/presage/lm_%1.db").arg(language.toLower());
