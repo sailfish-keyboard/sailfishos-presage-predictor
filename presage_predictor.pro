@@ -24,9 +24,9 @@ LIBS += -lpresage -lsqlite3 -lmarisa
 DISTFILES += qmldir \
     rpm/PresagePredictor.yaml \
     qml/PresageInputHandler.qml \
-    rpm/presage_predictor.yaml \
-    rpm/presage_predictor.changes \
-    rpm/presage_predictor.spec
+    rpm/maliit-plugin-presage.yaml \
+    rpm/maliit-plugin-presage.changes \
+    rpm/maliit-plugin-presage.spec
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir

@@ -1,5 +1,5 @@
-Name: presage_predictor
-Summary: PresagePredictor
+Name: maliit-plugin-presage
+Summary: Maliit plugin for text predictions using Presage
 Version: 1.0
 Release: 7
 # The contents of the Group field should be one of the groups listed here:
