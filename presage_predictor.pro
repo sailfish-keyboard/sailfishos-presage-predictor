@@ -45,3 +45,15 @@ inputhandler.files = $$_PRO_FILE_PWD_/qml/PresageInputHandler.qml
 inputhandler.path = /usr/share/maliit/plugins/com/jolla
 
 INSTALLS += target qmldir inputhandler
+
+# presage configuration
+presageconfig.files = data/presage.xml
+presageconfig.path = /etc
+
+INSTALLS += presageconfig
+
+# presage default empty database
+presageempty.files = data/database_empty
+presageempty.path = /usr/share/presage
+
+INSTALLS += presageempty

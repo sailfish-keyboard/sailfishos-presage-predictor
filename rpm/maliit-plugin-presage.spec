@@ -22,7 +22,6 @@ Source0:    %{name}-%{version}.tar.bz2
 Source100:  maliit-plugin-presage.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
 Requires:   jolla-keyboard
-Requires:   presage-data
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
@@ -31,6 +30,7 @@ BuildRequires:  pkgconfig(Qt5DBus)
 BuildRequires:  pkgconfig(sqlite3)
 BuildRequires:  libpresage-devel
 BuildRequires:  libmarisa-devel
+Obsoletes:   presage-data
 
 %description
 Keyboard prediction plugin based on the Presage prediction engine
@@ -76,5 +76,7 @@ su - nemo -c "/bin/systemctl --user restart maliit-server.service"
 %{_libdir}/qt5/qml/hu/mm/presagepredictor/libPresagePredictor.so
 %{_libdir}/qt5/qml/hu/mm/presagepredictor/qmldir
 %{_datadir}/maliit/plugins/com/jolla/PresageInputHandler.qml
+%{_datadir}/presage/database_empty
+%{_sysconfdir}/presage.xml
 # >> files
 # << files
