@@ -3,49 +3,54 @@
 
 #include <QAbstractItemModel>
 #include <QDBusConnection>
-#include <QString>
+#include <QMutex>
 #include <QObject>
+#include <QString>
+#include <QThread>
+
 #include <QtQuick/QQuickItem>
 
-#include <string.h>
-#include <sstream>
-#include <presage.h>
+#include <string>
 
 #include "notificationmanager.h"
 #include "presagepredictormodel.h"
 
-/** Callback object for presage demo application.
- *
- * We need to provide a callback class to allow presage to query the
- * application's text buffer. In a real world application, this would
- * fetch the text from whatever object stores the text composition
- * (i.e. a GUI widget in a graphical interface)
- *
- * For the purpose of this demonstration program, the callback class
- * will retrieve contextual data from a standard stringstream object.
- *
- */
-class PresagePredictorCallback : public PresageCallback {
-public:
-    PresagePredictorCallback(std::stringstream& buffer) : m_buffer(buffer) { }
-
-    std::string get_past_stream() const { return m_buffer.str(); }
-    std::string get_future_stream() const { return empty; }
-
-private:
-    std::stringstream& m_buffer;
-    const std::string empty;
-
-};
-
 class PresagePredictorModel; // forward declaration
 
+
+/// \brief Presage predictor interface connecting requests with the predictor
+///
+/// The object of this class links the GUI with Presage working thread by
+/// forwarding perdiction requests and replies between the prediction engine
+/// and GUI. For that, Presage worker thread is created in the constructor as
+/// well as presage prediction engine wrapper with the wrapper (PresageWorker)
+/// moved into the working thread. Later communication between PresageWorker
+/// and this class object is done through queued signals. For each prediction
+/// request, language change, learn request, a signal is emitted by this object
+/// and received by PresageWorker. Response from PresageWorker is received by
+/// other queued signal. This allows to handle predictions in asynchrounous manner
+/// and should allow to provide predictions without noticable lag for the user
+/// during interaction with the keyboard.
+///
+/// To ensure that the most relevant prediction is provided by the prediction engine,
+/// this object holds the latest context that is asked for by the prediction
+/// engine before finding the prediction. This allows the predictor to catch up with
+/// fast input by skipping the prediction requests that are not up-to-date anymore.
+/// For that, PresagePredictor keeps request id (m_prediction_id) and provides
+/// an interface to ask for the latest prediction context (contextStream). Since
+/// the context is asked for in the other thread, one has to protect changes/requests for
+/// the involved variables by mutex. In addition, predict() method emitting signal
+/// requesting the prediction and updating m_prediction_id, has to be called by the method
+/// which keeps the mutex locked (no internal locking is done in predict() to avoid
+/// using recursive mutexes).
+///
 class PresagePredictor : public QQuickItem
 {
     Q_OBJECT
     Q_DISABLE_COPY(PresagePredictor)
     Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
     Q_PROPERTY(PresagePredictorModel* engine READ engine NOTIFY engineChanged)
+
 public:
     enum ShiftState {
         NoShift,
@@ -78,45 +83,65 @@ public:
     QString language() const;
     void setLanguage(const QString &language);
 
+    /// \brief Provide current context for prediction
+    ///
+    /// The conext is provided if there is a newer prediction requested than the
+    /// prediction done by PresageWorker the last time (as indicated by input value
+    /// of id). Fills id, language, and buffer with the new values if the prediction
+    /// id requested. Request is indicated by the return value
+    ///
+    /// \param id On input, the last prediction provided by the caller. On output, set id to the requested one
+    /// \param language On output: Language for the requested prediction
+    /// \param buffer On output: Context for the prediction (past stream)
+    /// \return true if new request is asked for; false if there is no new request
+    bool contextStream(size_t &id, QString &language, std::string &buffer);
+
     PresagePredictorModel *engine() const;
 
 protected:
 
-    QStringList predictions() const;
-    void setPredictions(const QStringList &predictions);
-
-    void predict();
+    void predict(); ///< Request new prediction. NB! Call only with the locked mutex
 
     ShiftState shiftStateFromWordContents(const QString &word);
 
+    void setEngineCapitalization(const ShiftState shiftState);
+    void log(const QString &log);
+
 
 private:
-    PresageCallback* m_callback;
-    Presage *m_presage;
     NotificationManager *m_clearDataNotifier;
 
-    QString m_language;
+    QThread m_workerThread;
+    QMutex m_mutex;              ///< Protect access from worker and GUI threads
+
     PresagePredictorModel *m_engine;
-    QStringList m_predictions;
-    void log(const QString &log);
+
+    QString m_language;
+    size_t m_prediction_id{0}; ///< Incremented for each prediction asked from presage
+
+    QStringList m_predictedWords;
     QString m_contextBuffer;
-    QString m_wordBuffer;
+    QString m_wordBuffer;    
     bool m_backspacePressed;
     int m_backspaceCounter;
     ShiftState m_shiftState;
 
-    std::stringstream m_predictBuffer;
-    std::vector<std::string> m_predictedWords;
-    void setEngineCapitalization(const ShiftState shiftState);
-
-    bool m_presageInitialized;
-
 private slots:
     void clearLearnedWords();
+
+    void onPredictedWords(QStringList predictedWords, size_t prediction_id);
 
 signals:
     void languageChanged();
     void engineChanged();
+
+    // signals used to communicate with the worker thread
+    // don't use for external communication, used internally
+    void _predictSignal();                             ///< ask worker for prediction
+    void _setLanguageSignal(QString language);         ///< propagate language change to worker
+    void _learnSignal(QString text, QString language); ///< process new text for learning
 };
+
 Q_DECLARE_METATYPE(PresagePredictor::ShiftState)
+
 #endif // PRESAGEPREDICTOR_H

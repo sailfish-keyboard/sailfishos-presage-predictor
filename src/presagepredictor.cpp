@@ -1,32 +1,34 @@
 #include "presagepredictor.h"
+#include "presageworker.h"
 
 #include <presageException.h>
 #include <stdio.h>
 
 #include <QDBusConnection>
 #include <QElapsedTimer>
-#include <QFileInfo>
 #include <QMetaEnum>
-#include <QStandardPaths>
+#include <QMutexLocker>
 
 
 PresagePredictor::PresagePredictor(QQuickItem *parent):
     QQuickItem(parent),
-    m_callback(nullptr),
-    m_presage(nullptr),
     m_engine(new PresagePredictorModel(this)),
     m_backspacePressed(false),
-    m_shiftState(NoShift),
-    m_presageInitialized(false)
+    m_shiftState(NoShift)
 {
-    m_callback = new PresagePredictorCallback(m_predictBuffer);
-    try {
-        m_presage = new Presage(m_callback);
-    } catch (PresageException e) {
-        m_presage = nullptr;
-        log(QString("Failed to initialize presage: ") + e.what());
-        return;
-    }
+    PresageWorker *worker = new PresageWorker(this);
+
+    worker->moveToThread(&m_workerThread);
+    connect(&m_workerThread, &QThread::finished, worker, &QObject::deleteLater);
+
+    // Queued connections are required since we are communicating between different threads and
+    // we can emit signal in the routines that have mutex locked.
+    connect(this, &PresagePredictor::_setLanguageSignal, worker, &PresageWorker::setLanguage, Qt::QueuedConnection);
+    connect(this, &PresagePredictor::_predictSignal, worker, &PresageWorker::predict, Qt::QueuedConnection);
+    connect(this, &PresagePredictor::_learnSignal, worker, &PresageWorker::learn, Qt::QueuedConnection);
+    connect(worker, &PresageWorker::predictedWords, this, &PresagePredictor::onPredictedWords, Qt::QueuedConnection);
+
+    m_workerThread.start();
 
     // Jolla settings page will call the
     // /com/jolla/keyboard clearData method once the
@@ -39,23 +41,25 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
 
 PresagePredictor::~PresagePredictor()
 {
-    if (m_presage != nullptr)
-        delete m_presage;
-    if (m_callback != nullptr)
-        delete m_callback;
+    m_workerThread.quit();
+    m_workerThread.wait();
 }
 
 void PresagePredictor::reset()
 {
     log("PresagePredictor::reset");
+
+    QMutexLocker _(&m_mutex);
     m_wordBuffer.clear();
     m_contextBuffer.clear();
+
     predict();
 }
 
 void PresagePredictor::setContext(const QString & context)
 {
     if (m_contextBuffer != context) {
+        QMutexLocker _(&m_mutex);
         m_contextBuffer = context;
         predict();
     }
@@ -63,8 +67,13 @@ void PresagePredictor::setContext(const QString & context)
 
 void PresagePredictor::predict()
 {
-    if (m_presage == nullptr || !m_presageInitialized)
-        return;
+    // NB! Must be called WITH the mutex locked from calling
+    // method
+    //
+    // Cannot lock mutex since can be called from
+    // methods with mutex locked already. Since we send signal
+    // as queued, should not be a problem when communicating
+    // with the predictor worker
 
     // when the user continously pressing the backspace
     // the predictions would increase lag
@@ -75,17 +84,33 @@ void PresagePredictor::predict()
     log(QString("CTX : %1").arg(m_contextBuffer));
     log(QString("Word: %1").arg(m_wordBuffer));
 
-    m_predictBuffer.str("");
-    m_predictBuffer.clear();
-    m_predictBuffer << m_contextBuffer.toStdString();
-    m_predictBuffer << m_wordBuffer.toStdString();
+    ++m_prediction_id;
+    emit _predictSignal();
+}
 
-    m_predictedWords = m_presage->predict();
+void PresagePredictor::onPredictedWords(QStringList predictedWords, size_t /*prediction_id*/)
+{
+    m_predictedWords = predictedWords;
+
+    m_engine->reload(m_predictedWords);
+
     log(QString("PresagePredictor::predicted  words count: %1").arg(m_predictedWords.size()));
-    QStringList words;
-    for(std::vector<std::string>::const_iterator i = m_predictedWords.begin(); i != m_predictedWords.end(); ++i)
-        words.append(QString::fromStdString(*i));
-    m_engine->reload(words);
+}
+
+bool PresagePredictor::contextStream(size_t &id, QString &language, std::string &buffer)
+{
+    QMutexLocker _(&m_mutex);
+
+    if (id == m_prediction_id)
+        // last prediction by presage was already done, no need for a new one
+        return false;
+
+    // request new prediction
+    id = m_prediction_id;
+    language = m_language;
+
+    buffer = (m_contextBuffer + m_wordBuffer).toStdString();
+    return true;
 }
 
 
@@ -99,31 +124,34 @@ void PresagePredictor::predict()
  */
 void PresagePredictor::acceptWord(const QString &word)
 {
-    if (m_presage == nullptr)
-        return;
     log(QString("PresagePredictor::acceptWord(%1);").arg(word));
-    m_presage->learn(word.toStdString());
+
+    emit _learnSignal(word, m_language);
+
     if (m_shiftState == ShiftLatchedByWordStart ||
-        m_shiftState == ShiftLockedByWordStart) {
+            m_shiftState == ShiftLockedByWordStart) {
         // if we have had prediction capitalization due the wordbuffer contents switch it off
         // since we have finished the word editing
         m_shiftState = NoShift;
         setEngineCapitalization(m_shiftState);
     }
+
+    QMutexLocker _(&m_mutex);
     m_wordBuffer.clear();
     predict();
 }
 
 void PresagePredictor::acceptPrediction(int index)
 {
-    if (m_presage == nullptr)
-        return;
     log(QString("PresagePredictor::acceptPrediction(%1)").arg(index));
-    if ((size_t)index < m_predictedWords.size()) {
-        m_wordBuffer.clear();
+    if (index < m_predictedWords.size()) {
+        {
+            QMutexLocker _(&m_mutex);
+            m_wordBuffer.clear();
+        }
 
         if (m_shiftState == ShiftLatchedByWordStart ||
-            m_shiftState == ShiftLockedByWordStart) {
+                m_shiftState == ShiftLockedByWordStart) {
             m_shiftState = NoShift;
             setEngineCapitalization(m_shiftState);
         }
@@ -135,7 +163,10 @@ void PresagePredictor::processSymbol(const QString &symbol, bool forceAdd)
     Q_UNUSED(forceAdd) // TODO consider remove it from QML too
     if (symbol.length()) {
         log(QString("PresagePredictor::processSymbol %1").arg(symbol));
+
+        QMutexLocker _(&m_mutex);
         m_wordBuffer = m_wordBuffer.append(symbol);
+
         predict();
     }
 }
@@ -144,6 +175,7 @@ void PresagePredictor::processBackspace()
 {
     log(QString("PresagePredictor::processBackspace"));
     if (m_wordBuffer.length() > 0) {
+        QMutexLocker _(&m_mutex);
         m_wordBuffer = m_wordBuffer.left(m_wordBuffer.length() - 1);
 
         if (m_shiftState == ShiftLockedByWordStart) {
@@ -166,8 +198,10 @@ void PresagePredictor::processKeyRelease()
 {
     if (m_backspacePressed) {
         m_backspacePressed = false;
-        if (m_backspaceCounter)
+        if (m_backspaceCounter) {
+            QMutexLocker _(&m_mutex);
             predict();
+        }
     }
 }
 
@@ -207,6 +241,8 @@ void PresagePredictor::reactivateWord(const QString &word)
 
     m_shiftState = shiftStateFromWordContents(word);
     setEngineCapitalization(m_shiftState);
+
+    QMutexLocker _(&m_mutex);
     m_wordBuffer = word;
     predict();
 }
@@ -233,7 +269,7 @@ void PresagePredictor::setShiftState(ShiftState shiftState)
     qDebug() << "PresagePredictor::setShiftState(" << QMetaEnum::fromType<ShiftState>().valueToKey(shiftState) << ")";
     if (m_shiftState != shiftState) {
         if (m_shiftState == ShiftLatched && shiftState == NoShift &&
-            m_wordBuffer.length() == 1  && m_wordBuffer.at(0).isUpper()) {
+                m_wordBuffer.length() == 1  && m_wordBuffer.at(0).isUpper()) {
             // when starting a word with latched shift with capital letter
             // sink the shiftchange to noncapital and fool the model with firstcapital mode
             m_shiftState = ShiftLatchedByWordStart;
@@ -267,47 +303,13 @@ QString PresagePredictor::language() const
 
 void PresagePredictor::setLanguage(const QString &language)
 {
-    if (m_presage == nullptr)
-        return;
-
-    log(QString("PresagePredictor::setLanguage(%1)").arg(language));
-    if (m_language != language) {
-        m_language = language;
-        QString dbFileName = QString("/usr/share/presage/database_%1").arg(language.toLower());
-        if (QFileInfo::exists(dbFileName)) {
-            try {
-                m_presage->config("Presage.Predictors.DefaultSmoothedNgramTriePredictor.DBFILENAME",  dbFileName.toLatin1().constData());
-            } catch (PresageException e) {
-                qDebug() << e.what();
-                return;
-            }
-
-            QString userdb =
-                QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
-                QString("/presage/lm_%1.db").arg(language.toLower());
-            m_presage->config("Presage.Predictors.UserSmoothedNgramPredictor.DBFILENAME",
-                              userdb.toLatin1().constData());
-            m_presageInitialized = true;
-            emit languageChanged();
-        } else {
-            m_presageInitialized = false;
-        }
-    }
+    m_language = language;
+    emit _setLanguageSignal(language);
 }
 
 PresagePredictorModel *PresagePredictor::engine() const
 {
     return m_engine;
-}
-
-QStringList PresagePredictor::predictions() const
-{
-    return m_predictions;
-}
-
-void PresagePredictor::setPredictions(const QStringList &predictions)
-{
-    m_predictions = predictions;
 }
 
 void PresagePredictor::log(const QString &log)
