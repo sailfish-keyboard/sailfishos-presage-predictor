@@ -273,10 +273,10 @@ void PresagePredictor::setLanguage(const QString &language)
     log(QString("PresagePredictor::setLanguage(%1)").arg(language));
     if (m_language != language) {
         m_language = language;
-        QString dbFileName = QString("/usr/share/presage/database_%1.db").arg(language.toLower());
+        QString dbFileName = QString("/usr/share/presage/database_%1").arg(language.toLower());
         if (QFileInfo::exists(dbFileName)) {
             try {
-                m_presage->config("Presage.Predictors.DefaultSmoothedNgramPredictor.DBFILENAME",  dbFileName.toLatin1().constData());
+                m_presage->config("Presage.Predictors.DefaultSmoothedNgramTriePredictor.DBFILENAME",  dbFileName.toLatin1().constData());
             } catch (PresageException e) {
                 qDebug() << e.what();
                 return;

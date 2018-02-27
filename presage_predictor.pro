@@ -19,14 +19,14 @@ HEADERS += \
     src/notificationmanager.h \
     src/presagepredictormodel.h
 
-LIBS += -lpresage -lsqlite3
+LIBS += -lpresage -lsqlite3 -lmarisa
 
 DISTFILES += qmldir \
     rpm/PresagePredictor.yaml \
     qml/PresageInputHandler.qml \
-    rpm/presage_predictor.yaml \
-    rpm/presage_predictor.changes \
-    rpm/presage_predictor.spec
+    rpm/maliit-plugin-presage.yaml \
+    rpm/maliit-plugin-presage.changes \
+    rpm/maliit-plugin-presage.spec
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir
@@ -45,3 +45,15 @@ inputhandler.files = $$_PRO_FILE_PWD_/qml/PresageInputHandler.qml
 inputhandler.path = /usr/share/maliit/plugins/com/jolla
 
 INSTALLS += target qmldir inputhandler
+
+# presage configuration
+presageconfig.files = data/presage.xml
+presageconfig.path = /etc
+
+INSTALLS += presageconfig
+
+# presage default empty database
+presageempty.files = data/database_empty
+presageempty.path = /usr/share/presage
+
+INSTALLS += presageempty

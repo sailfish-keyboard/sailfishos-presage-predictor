@@ -1,5 +1,5 @@
-Name: presage_predictor
-Summary: PresagePredictor
+Name: maliit-plugin-presage
+Summary: Maliit plugin for text predictions using Presage
 Version: 1.0
 Release: 7
 # The contents of the Group field should be one of the groups listed here:
@@ -30,11 +30,14 @@ PkgConfigBR:
 # Build dependencies without a pkgconfig setup can be listed here
 PkgBR:
   - libpresage-devel
+  - libmarisa-devel
 
 # Runtime dependencies which are not automatically detected
 Requires:
   - sailfishsilica-qt5 >= 0.10.9 
   - jolla-keyboard
+
+Obsoletes:
   - presage-data
 
 # All installed files
@@ -42,6 +45,8 @@ Files:
   - '%{_libdir}/qt5/qml/hu/mm/presagepredictor/libPresagePredictor.so'
   - '%{_libdir}/qt5/qml/hu/mm/presagepredictor/qmldir'
   - '%{_datadir}/maliit/plugins/com/jolla/PresageInputHandler.qml'
+  - '%{_datadir}/presage/database_empty'
+  - '%{_sysconfdir}/presage.xml'
 
 # For more information about yaml and what's supported in Sailfish OS
 # build system, please see https://wiki.merproject.org/wiki/Spectacle
