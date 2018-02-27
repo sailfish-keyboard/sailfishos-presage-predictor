@@ -23,6 +23,9 @@ HEADERS += \
 
 LIBS += -lpresage -lsqlite3 -lmarisa
 
+CONFIG += link_pkgconfig
+PKGCONFIG += hunspell
+
 DISTFILES += qmldir \
     rpm/PresagePredictor.yaml \
     qml/PresageInputHandler.qml \
