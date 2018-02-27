@@ -8,7 +8,7 @@ if [ "$#" -ne 5 ]; then
     echo "Usage: $0 Language langcode version keyboard.qml keyboard.conf"
     echo
     echo "Language: Specify language in English starting with the capital letter, ex 'Estonian'"
-    echo "langcode: Specify language two-letter code, ex 'et'"
+    echo "langcode: Specify language code, ex 'en_US'. Use the same notation as Hunspell dictionaries."
     echo "version: Version of the language package, ex '1.0.0'"
     echo "keyboard.qml: Keyboard QML file"
     echo "keyboard.conf: Keyboard Configuration file referencing the QML file"
