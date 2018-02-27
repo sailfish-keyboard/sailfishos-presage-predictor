@@ -129,7 +129,7 @@
         </DefaultRecencyPredictor>
         <DefaultHunspellPredictor>
             <PREDICTOR>HunspellPredictor</PREDICTOR>
-            <LOGGER>DEBUG</LOGGER>
+            <LOGGER>ERROR</LOGGER>
             <AFFIX>/usr/share/hunspell/en_US.aff</AFFIX>
             <DICTIONARY>/usr/share/hunspell/en_US.dic</DICTIONARY>
             <!-- fixed probability assigned to prediction -->
