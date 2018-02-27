@@ -121,7 +121,7 @@ private:
 
     QStringList m_predictedWords;
     QString m_contextBuffer;
-    QString m_wordBuffer;    
+    QString m_wordBuffer;
     bool m_backspacePressed;
     int m_backspaceCounter;
     ShiftState m_shiftState;

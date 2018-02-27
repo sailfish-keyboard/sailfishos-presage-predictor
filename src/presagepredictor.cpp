@@ -129,7 +129,7 @@ void PresagePredictor::acceptWord(const QString &word)
     emit _learnSignal(word, m_language);
 
     if (m_shiftState == ShiftLatchedByWordStart ||
-            m_shiftState == ShiftLockedByWordStart) {
+        m_shiftState == ShiftLockedByWordStart) {
         // if we have had prediction capitalization due the wordbuffer contents switch it off
         // since we have finished the word editing
         m_shiftState = NoShift;
@@ -151,7 +151,7 @@ void PresagePredictor::acceptPrediction(int index)
         }
 
         if (m_shiftState == ShiftLatchedByWordStart ||
-                m_shiftState == ShiftLockedByWordStart) {
+            m_shiftState == ShiftLockedByWordStart) {
             m_shiftState = NoShift;
             setEngineCapitalization(m_shiftState);
         }
@@ -269,7 +269,7 @@ void PresagePredictor::setShiftState(ShiftState shiftState)
     qDebug() << "PresagePredictor::setShiftState(" << QMetaEnum::fromType<ShiftState>().valueToKey(shiftState) << ")";
     if (m_shiftState != shiftState) {
         if (m_shiftState == ShiftLatched && shiftState == NoShift &&
-                m_wordBuffer.length() == 1  && m_wordBuffer.at(0).isUpper()) {
+            m_wordBuffer.length() == 1  && m_wordBuffer.at(0).isUpper()) {
             // when starting a word with latched shift with capital letter
             // sink the shiftchange to noncapital and fool the model with firstcapital mode
             m_shiftState = ShiftLatchedByWordStart;
