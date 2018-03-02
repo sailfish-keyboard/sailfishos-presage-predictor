@@ -11,13 +11,15 @@ SOURCES += \
     src/presagepredictor.cpp \
     src/plugin.cpp \
     src/notificationmanager.cpp \
-    src/presagepredictormodel.cpp
+    src/presagepredictormodel.cpp \
+    src/presageworker.cpp
 
 HEADERS += \
     src/presagepredictor.h \
     src/plugin.h \
     src/notificationmanager.h \
-    src/presagepredictormodel.h
+    src/presagepredictormodel.h \
+    src/presageworker.h
 
 LIBS += -lpresage -lsqlite3 -lmarisa
 
