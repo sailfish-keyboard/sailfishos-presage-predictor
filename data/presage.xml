@@ -130,9 +130,9 @@
         <DefaultHunspellPredictor>
             <PREDICTOR>HunspellPredictor</PREDICTOR>
             <LOGGER>ERROR</LOGGER>
-            <AFFIX>/usr/share/hunspell/en_US.aff</AFFIX>
-            <DICTIONARY>/usr/share/hunspell/en_US.dic</DICTIONARY>
-            <!-- fixed probability assigned to prediction -->
+            <!-- basename of the dictionary and affix files. extensions .dic and .aff will be added, as appropriate -->
+            <DICTIONARYBASE>/usr/share/hunspell/en_US</DICTIONARYBASE>
+            <!-- the probability assigned to the first prediction -->
             <PROBABILITY>0.000001</PROBABILITY>
         </DefaultHunspellPredictor>
     </Predictors>
