@@ -27,6 +27,7 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
     connect(this, &PresagePredictor::_predictSignal, worker, &PresageWorker::predict, Qt::QueuedConnection);
     connect(this, &PresagePredictor::_learnSignal, worker, &PresageWorker::learn, Qt::QueuedConnection);
     connect(worker, &PresageWorker::predictedWords, this, &PresagePredictor::onPredictedWords, Qt::QueuedConnection);
+    connect(worker, &PresageWorker::languageChanged, this, &PresagePredictor::languageChanged, Qt::QueuedConnection);
 
     m_workerThread.start();
 

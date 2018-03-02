@@ -101,12 +101,9 @@ void PresageWorker::setLanguage(const QString &language)
             m_presageInitialized = true;
 
             // Hunspell support. Set even if the files are absent - hunspell will just be returning nothing
-            QString affix = "/usr/share/hunspell/" + m_language + ".aff";
-            QString dict = "/usr/share/hunspell/" + m_language + ".dic";
-            m_presage->config("Presage.Predictors.DefaultHunspellPredictor.AFFIX",
-                              affix.toLatin1().constData());
-            m_presage->config("Presage.Predictors.DefaultHunspellPredictor.DICTIONARY",
-                              dict.toLatin1().constData());
+            QString hunspell_base = "/usr/share/hunspell/" + m_language;
+            m_presage->config("Presage.Predictors.DefaultHunspellPredictor.DICTIONARYBASE",
+                              hunspell_base.toLatin1().constData());
 
             emit languageChanged();
         } else {
