@@ -17,6 +17,7 @@ URL: https://github.com/martonmiklos/sailfishos-presage-predictor
 Source: %{name}-%{version}.tar.xz
 BuildArch: noarch
 Requires: presage-lang-__langcode__
+Requires: hunspell-lang-__langcode__
 Requires: maliit-plugin-presage
 
 %description
