@@ -80,6 +80,14 @@ public:
     Q_INVOKABLE void addLayoutButton(int x, int y, int width, int height, const QString &buttonText, const QString &buttonTextShifted);
     Q_INVOKABLE void finishLayout() {}
 
+    /// \brief Instruct presage to forget a word from the predictors with active learning
+    ///
+    /// Presage is actively learning new words and, if committed, typos will be remembered
+    /// as well. This method allows to remove a specified word from user databases. Note that
+    /// it will not remove words that are used by predictors which are working without learning.
+    /// This is assuming that read-only databases are system-provided
+    Q_INVOKABLE void forget(QString word);
+
     QString language() const;
     void setLanguage(const QString &language);
 
@@ -94,7 +102,7 @@ public:
     /// \param language On output: Language for the requested prediction
     /// \param buffer On output: Context for the prediction (past stream)
     /// \return true if new request is asked for; false if there is no new request
-    bool contextStream(size_t &id, QString &language, std::string &buffer);
+    bool contextStream(size_t &id, QString &language, std::string &buffer, bool force);
 
     PresagePredictorModel *engine() const;
 
@@ -140,6 +148,7 @@ signals:
     void _predictSignal();                             ///< ask worker for prediction
     void _setLanguageSignal(QString language);         ///< propagate language change to worker
     void _learnSignal(QString text, QString language); ///< process new text for learning
+    void _forgetSignal(QString word, QString language); ///< forget a given word
 };
 
 Q_DECLARE_METATYPE(PresagePredictor::ShiftState)

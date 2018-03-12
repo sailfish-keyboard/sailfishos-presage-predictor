@@ -90,6 +90,7 @@ InputHandler {
 
                 delegate: BackgroundItem {
                     onClicked: applyPrediction(model.text, model.index)
+                    onPressAndHold: thread.forget(model.text)
                     width: candidateText.width + Theme.paddingLarge * 2
                     height: parent ? parent.height : 0
 

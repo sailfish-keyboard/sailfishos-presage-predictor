@@ -26,6 +26,7 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
     connect(this, &PresagePredictor::_setLanguageSignal, worker, &PresageWorker::setLanguage, Qt::QueuedConnection);
     connect(this, &PresagePredictor::_predictSignal, worker, &PresageWorker::predict, Qt::QueuedConnection);
     connect(this, &PresagePredictor::_learnSignal, worker, &PresageWorker::learn, Qt::QueuedConnection);
+    connect(this, &PresagePredictor::_forgetSignal, worker, &PresageWorker::forget, Qt::QueuedConnection);
     connect(worker, &PresageWorker::predictedWords, this, &PresagePredictor::onPredictedWords, Qt::QueuedConnection);
     connect(worker, &PresageWorker::languageChanged, this, &PresagePredictor::languageChanged, Qt::QueuedConnection);
 
@@ -98,11 +99,11 @@ void PresagePredictor::onPredictedWords(QStringList predictedWords, size_t /*pre
     log(QString("PresagePredictor::predicted  words count: %1").arg(m_predictedWords.size()));
 }
 
-bool PresagePredictor::contextStream(size_t &id, QString &language, std::string &buffer)
+bool PresagePredictor::contextStream(size_t &id, QString &language, std::string &buffer, bool force)
 {
     QMutexLocker _(&m_mutex);
 
-    if (id == m_prediction_id)
+    if (!force && id == m_prediction_id)
         // last prediction by presage was already done, no need for a new one
         return false;
 
@@ -306,6 +307,11 @@ void PresagePredictor::setLanguage(const QString &language)
 {
     m_language = language;
     emit _setLanguageSignal(language);
+}
+
+void PresagePredictor::forget(QString word)
+{
+    emit _forgetSignal(word, m_language);
 }
 
 PresagePredictorModel *PresagePredictor::engine() const
