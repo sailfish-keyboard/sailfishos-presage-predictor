@@ -141,7 +141,6 @@ signals:
     // don't use for external communication, used internally
     void _predictSignal();                              ///< ask worker for prediction
     void _setLanguageSignal(QString language);          ///< propagate language change to worker
-    void _learnSignal(QString text, QString language);  ///< process new text for learning
     void _forgetSignal(QString word, QString language); ///< forget a given word
 };
 

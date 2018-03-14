@@ -22,7 +22,6 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
     // we can emit signal in the routines that have mutex locked.
     connect(this, &PresagePredictor::_setLanguageSignal, worker, &PresageWorker::setLanguage, Qt::QueuedConnection);
     connect(this, &PresagePredictor::_predictSignal, worker, &PresageWorker::predict, Qt::QueuedConnection);
-    connect(this, &PresagePredictor::_learnSignal, worker, &PresageWorker::learn, Qt::QueuedConnection);
     connect(this, &PresagePredictor::_forgetSignal, worker, &PresageWorker::forget, Qt::QueuedConnection);
     connect(worker, &PresageWorker::predictedWords, this, &PresagePredictor::onPredictedWords, Qt::QueuedConnection);
     connect(worker, &PresageWorker::languageChanged, this, &PresagePredictor::languageChanged, Qt::QueuedConnection);
@@ -116,8 +115,6 @@ bool PresagePredictor::contextStream(size_t &id, QString &language, std::string 
 void PresagePredictor::acceptWord(const QString &word)
 {
     log(QString("PresagePredictor::acceptWord(%1);").arg(word));
-
-    emit _learnSignal(word, m_language);
 
     if (m_shiftState == ShiftLatchedByWordStart ||
         m_shiftState == ShiftLockedByWordStart) {
