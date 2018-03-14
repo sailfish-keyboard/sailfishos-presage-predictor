@@ -2,7 +2,6 @@
 #define PRESAGEPREDICTOR_H
 
 #include <QAbstractItemModel>
-#include <QDBusConnection>
 #include <QMutex>
 #include <QObject>
 #include <QString>
@@ -12,7 +11,6 @@
 
 #include <string>
 
-#include "notificationmanager.h"
 #include "presagepredictormodel.h"
 
 class PresagePredictorModel; // forward declaration
@@ -117,8 +115,6 @@ protected:
 
 
 private:
-    NotificationManager *m_clearDataNotifier;
-
     QThread m_workerThread;
     QMutex m_mutex;              ///< Protect access from worker and GUI threads
 
@@ -135,8 +131,6 @@ private:
     ShiftState m_shiftState;
 
 private slots:
-    void clearLearnedWords();
-
     void onPredictedWords(QStringList predictedWords, size_t prediction_id);
 
 signals:
@@ -145,9 +139,9 @@ signals:
 
     // signals used to communicate with the worker thread
     // don't use for external communication, used internally
-    void _predictSignal();                             ///< ask worker for prediction
-    void _setLanguageSignal(QString language);         ///< propagate language change to worker
-    void _learnSignal(QString text, QString language); ///< process new text for learning
+    void _predictSignal();                              ///< ask worker for prediction
+    void _setLanguageSignal(QString language);          ///< propagate language change to worker
+    void _learnSignal(QString text, QString language);  ///< process new text for learning
     void _forgetSignal(QString word, QString language); ///< forget a given word
 };
 

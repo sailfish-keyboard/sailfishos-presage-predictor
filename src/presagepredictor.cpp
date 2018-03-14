@@ -4,9 +4,6 @@
 #include <presageException.h>
 #include <stdio.h>
 
-#include <QDBusConnection>
-#include <QElapsedTimer>
-#include <QMetaEnum>
 #include <QMutexLocker>
 
 
@@ -31,14 +28,6 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
     connect(worker, &PresageWorker::languageChanged, this, &PresagePredictor::languageChanged, Qt::QueuedConnection);
 
     m_workerThread.start();
-
-    // Jolla settings page will call the
-    // /com/jolla/keyboard clearData method once the
-    // Clear learned word is pressed
-    // The notificationmanager is sniff that event
-    m_clearDataNotifier = new NotificationManager(this);
-    connect(m_clearDataNotifier, &NotificationManager::clearDataRequested,
-            this, &PresagePredictor::clearLearnedWords);
 }
 
 PresagePredictor::~PresagePredictor()
@@ -322,9 +311,4 @@ PresagePredictorModel *PresagePredictor::engine() const
 void PresagePredictor::log(const QString &log)
 {
     qDebug() << log;
-}
-
-void PresagePredictor::clearLearnedWords()
-{
-    log("PresagePredictor::clear learned words");
 }
