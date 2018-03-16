@@ -31,6 +31,7 @@ PkgConfigBR:
 PkgBR:
   - libpresage-devel
   - libmarisa-devel
+  - hunspell-devel >= 1.5.1
 
 # Runtime dependencies which are not automatically detected
 Requires:

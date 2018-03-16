@@ -83,7 +83,8 @@ void PresageWorker::setLanguage(const QString &language)
 
     if (m_language != language) {
         m_language = language;
-        QString dbFileName = QString("/usr/share/presage/database_%1").arg(language.toLower());
+        qDebug() << "Language: " << m_language;
+        QString dbFileName = QString("/usr/share/presage/database_%1").arg(m_language);
         if (QFileInfo::exists(dbFileName)) {
             try {
                 m_presage->config("Presage.Predictors.DefaultSmoothedNgramTriePredictor.DBFILENAME",  dbFileName.toLatin1().constData());
@@ -94,10 +95,16 @@ void PresageWorker::setLanguage(const QString &language)
 
             QString userdb =
                 QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
-                QString("/presage/lm_%1.db").arg(language.toLower());
+                QString("/presage/lm_%1.db").arg(m_language);
             m_presage->config("Presage.Predictors.UserSmoothedNgramPredictor.DBFILENAME",
                               userdb.toLatin1().constData());
             m_presageInitialized = true;
+
+            // Hunspell support. Set even if the files are absent - hunspell will just be returning nothing
+            QString hunspell_base = "/usr/share/hunspell/" + m_language;
+            m_presage->config("Presage.Predictors.DefaultHunspellPredictor.DICTIONARYBASE",
+                              hunspell_base.toLatin1().constData());
+
             emit languageChanged();
         } else {
             m_presageInitialized = false;

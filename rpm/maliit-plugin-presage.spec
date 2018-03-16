@@ -30,6 +30,7 @@ BuildRequires:  pkgconfig(Qt5DBus)
 BuildRequires:  pkgconfig(sqlite3)
 BuildRequires:  libpresage-devel
 BuildRequires:  libmarisa-devel
+BuildRequires:  hunspell-devel >= 1.5.1
 Obsoletes:   presage-data
 
 %description

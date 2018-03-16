@@ -5,7 +5,7 @@
         <!-- PREDICTORS
 	     Space separated list of predictors to use to generate predictions
         -->
-        <PREDICTORS>DefaultSmoothedNgramTriePredictor UserSmoothedNgramPredictor DefaultRecencyPredictor</PREDICTORS>
+        <PREDICTORS>DefaultSmoothedNgramTriePredictor UserSmoothedNgramPredictor DefaultHunspellPredictor DefaultRecencyPredictor</PREDICTORS>
     </PredictorRegistry>
     <ContextTracker>
         <LOGGER>ERROR</LOGGER>
@@ -127,5 +127,13 @@
             <N_0>1</N_0>
             <CUTOFF_THRESHOLD>20</CUTOFF_THRESHOLD>
         </DefaultRecencyPredictor>
+        <DefaultHunspellPredictor>
+            <PREDICTOR>HunspellPredictor</PREDICTOR>
+            <LOGGER>ERROR</LOGGER>
+            <!-- basename of the dictionary and affix files. extensions .dic and .aff will be added, as appropriate -->
+            <DICTIONARYBASE>/usr/share/hunspell/en_US</DICTIONARYBASE>
+            <!-- the probability assigned to the first prediction -->
+            <PROBABILITY>0.000001</PROBABILITY>
+        </DefaultHunspellPredictor>
     </Predictors>
 </Presage>
