@@ -59,12 +59,16 @@ PresageWorker::~PresageWorker()
 
 void PresageWorker::predict()
 {
+    predict_impl();
+}
+
+void PresageWorker::predict_impl(bool force_prediction)
+{
     if (!m_presage || !m_presageInitialized)
         return;
 
     QString lang = m_language;
-    if (m_predictor->contextStream(m_last_id, lang, *m_buffer, m_forcePrediction)) {
-        m_forcePrediction = false;
+    if (m_predictor->contextStream(m_last_id, lang, *m_buffer, force_prediction)) {
         setLanguage(lang);
 
         // stream was updated
@@ -127,7 +131,6 @@ void PresageWorker::forget(QString word, QString language)
     // forget only if the language if the same as the current one
     if (m_language == language) {
         m_presage->forget(word.toStdString());
-        m_forcePrediction = true;
-        predict();
+        predict_impl(true);
     }
 }

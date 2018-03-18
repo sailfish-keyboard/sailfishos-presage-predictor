@@ -94,11 +94,17 @@ public:
     /// The conext is provided if there is a newer prediction requested than the
     /// prediction done by PresageWorker the last time (as indicated by input value
     /// of id). Fills id, language, and buffer with the new values if the prediction
-    /// id requested. Request is indicated by the return value
+    /// id requested. Context can be requested regardless of whether the prediction is
+    /// expected by setting force to true. Such enforcing is used when prediction can
+    /// be changed due to the changes in parameters which are not followed by id directly
+    /// (forgotten words in the databases, for example). Whether new prediction is
+    /// needed is indicated by the return value (set to true if prediction is requested or
+    /// forced).
     ///
     /// \param id On input, the last prediction provided by the caller. On output, set id to the requested one
     /// \param language On output: Language for the requested prediction
     /// \param buffer On output: Context for the prediction (past stream)
+    /// \param force If true, return context even if the prediction is not expected for given id
     /// \return true if new request is asked for; false if there is no new request
     bool contextStream(size_t &id, QString &language, std::string &buffer, bool force);
 
