@@ -31,6 +31,10 @@ public slots:
     void setLanguage(const QString &language);
     void predict();
     void learn(QString text, QString language);
+    void forget(QString word, QString language);
+
+protected:
+    void predict_impl(bool force_prediction = false);
 
 private:
     std::unique_ptr<PresageCallback> m_callback;

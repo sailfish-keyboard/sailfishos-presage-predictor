@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = PresagePredictor
 CONFIG += qt plugin c++11
-QT += qml quick dbus
+QT += qml quick
 QT -= gui network
 
 TARGET = $$qtLibraryTarget($$TARGET)
@@ -10,14 +10,12 @@ uri = hu.mm.presagepredictor
 SOURCES += \
     src/presagepredictor.cpp \
     src/plugin.cpp \
-    src/notificationmanager.cpp \
     src/presagepredictormodel.cpp \
     src/presageworker.cpp
 
 HEADERS += \
     src/presagepredictor.h \
     src/plugin.h \
-    src/notificationmanager.h \
     src/presagepredictormodel.h \
     src/presageworker.h
 

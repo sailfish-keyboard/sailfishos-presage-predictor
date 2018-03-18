@@ -2,7 +2,6 @@
 #define PRESAGEPREDICTOR_H
 
 #include <QAbstractItemModel>
-#include <QDBusConnection>
 #include <QMutex>
 #include <QObject>
 #include <QString>
@@ -12,7 +11,6 @@
 
 #include <string>
 
-#include "notificationmanager.h"
 #include "presagepredictormodel.h"
 
 class PresagePredictorModel; // forward declaration
@@ -80,6 +78,14 @@ public:
     Q_INVOKABLE void addLayoutButton(int x, int y, int width, int height, const QString &buttonText, const QString &buttonTextShifted);
     Q_INVOKABLE void finishLayout() {}
 
+    /// \brief Instruct presage to forget a word from the predictors with active learning
+    ///
+    /// Presage is actively learning new words and, if committed, typos will be remembered
+    /// as well. This method allows to remove a specified word from user databases. Note that
+    /// it will not remove words that are used by predictors which are working without learning.
+    /// This is assuming that read-only databases are system-provided
+    Q_INVOKABLE void forget(QString word);
+
     QString language() const;
     void setLanguage(const QString &language);
 
@@ -88,13 +94,19 @@ public:
     /// The conext is provided if there is a newer prediction requested than the
     /// prediction done by PresageWorker the last time (as indicated by input value
     /// of id). Fills id, language, and buffer with the new values if the prediction
-    /// id requested. Request is indicated by the return value
+    /// id requested. Context can be requested regardless of whether the prediction is
+    /// expected by setting force to true. Such enforcing is used when prediction can
+    /// be changed due to the changes in parameters which are not followed by id directly
+    /// (forgotten words in the databases, for example). Whether new prediction is
+    /// needed is indicated by the return value (set to true if prediction is requested or
+    /// forced).
     ///
     /// \param id On input, the last prediction provided by the caller. On output, set id to the requested one
     /// \param language On output: Language for the requested prediction
     /// \param buffer On output: Context for the prediction (past stream)
+    /// \param force If true, return context even if the prediction is not expected for given id
     /// \return true if new request is asked for; false if there is no new request
-    bool contextStream(size_t &id, QString &language, std::string &buffer);
+    bool contextStream(size_t &id, QString &language, std::string &buffer, bool force);
 
     PresagePredictorModel *engine() const;
 
@@ -109,8 +121,6 @@ protected:
 
 
 private:
-    NotificationManager *m_clearDataNotifier;
-
     QThread m_workerThread;
     QMutex m_mutex;              ///< Protect access from worker and GUI threads
 
@@ -127,8 +137,6 @@ private:
     ShiftState m_shiftState;
 
 private slots:
-    void clearLearnedWords();
-
     void onPredictedWords(QStringList predictedWords, size_t prediction_id);
 
 signals:
@@ -137,9 +145,9 @@ signals:
 
     // signals used to communicate with the worker thread
     // don't use for external communication, used internally
-    void _predictSignal();                             ///< ask worker for prediction
-    void _setLanguageSignal(QString language);         ///< propagate language change to worker
-    void _learnSignal(QString text, QString language); ///< process new text for learning
+    void _predictSignal();                              ///< ask worker for prediction
+    void _setLanguageSignal(QString language);          ///< propagate language change to worker
+    void _forgetSignal(QString word, QString language); ///< forget a given word
 };
 
 Q_DECLARE_METATYPE(PresagePredictor::ShiftState)

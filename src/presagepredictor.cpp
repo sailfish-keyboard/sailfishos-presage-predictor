@@ -4,9 +4,6 @@
 #include <presageException.h>
 #include <stdio.h>
 
-#include <QDBusConnection>
-#include <QElapsedTimer>
-#include <QMetaEnum>
 #include <QMutexLocker>
 
 
@@ -25,19 +22,11 @@ PresagePredictor::PresagePredictor(QQuickItem *parent):
     // we can emit signal in the routines that have mutex locked.
     connect(this, &PresagePredictor::_setLanguageSignal, worker, &PresageWorker::setLanguage, Qt::QueuedConnection);
     connect(this, &PresagePredictor::_predictSignal, worker, &PresageWorker::predict, Qt::QueuedConnection);
-    connect(this, &PresagePredictor::_learnSignal, worker, &PresageWorker::learn, Qt::QueuedConnection);
+    connect(this, &PresagePredictor::_forgetSignal, worker, &PresageWorker::forget, Qt::QueuedConnection);
     connect(worker, &PresageWorker::predictedWords, this, &PresagePredictor::onPredictedWords, Qt::QueuedConnection);
     connect(worker, &PresageWorker::languageChanged, this, &PresagePredictor::languageChanged, Qt::QueuedConnection);
 
     m_workerThread.start();
-
-    // Jolla settings page will call the
-    // /com/jolla/keyboard clearData method once the
-    // Clear learned word is pressed
-    // The notificationmanager is sniff that event
-    m_clearDataNotifier = new NotificationManager(this);
-    connect(m_clearDataNotifier, &NotificationManager::clearDataRequested,
-            this, &PresagePredictor::clearLearnedWords);
 }
 
 PresagePredictor::~PresagePredictor()
@@ -98,11 +87,11 @@ void PresagePredictor::onPredictedWords(QStringList predictedWords, size_t /*pre
     log(QString("PresagePredictor::predicted  words count: %1").arg(m_predictedWords.size()));
 }
 
-bool PresagePredictor::contextStream(size_t &id, QString &language, std::string &buffer)
+bool PresagePredictor::contextStream(size_t &id, QString &language, std::string &buffer, bool force)
 {
     QMutexLocker _(&m_mutex);
 
-    if (id == m_prediction_id)
+    if (!force && id == m_prediction_id)
         // last prediction by presage was already done, no need for a new one
         return false;
 
@@ -126,8 +115,6 @@ bool PresagePredictor::contextStream(size_t &id, QString &language, std::string 
 void PresagePredictor::acceptWord(const QString &word)
 {
     log(QString("PresagePredictor::acceptWord(%1);").arg(word));
-
-    emit _learnSignal(word, m_language);
 
     if (m_shiftState == ShiftLatchedByWordStart ||
         m_shiftState == ShiftLockedByWordStart) {
@@ -308,6 +295,11 @@ void PresagePredictor::setLanguage(const QString &language)
     emit _setLanguageSignal(language);
 }
 
+void PresagePredictor::forget(QString word)
+{
+    emit _forgetSignal(word, m_language);
+}
+
 PresagePredictorModel *PresagePredictor::engine() const
 {
     return m_engine;
@@ -316,9 +308,4 @@ PresagePredictorModel *PresagePredictor::engine() const
 void PresagePredictor::log(const QString &log)
 {
     qDebug() << log;
-}
-
-void PresagePredictor::clearLearnedWords()
-{
-    log("PresagePredictor::clear learned words");
 }
