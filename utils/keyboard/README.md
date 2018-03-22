@@ -22,7 +22,7 @@ Next, adjust the configuration file to be something like
 ```
 [et-presage.qml]
 name=Eesti (Presage)
-languageCode=ee_ET
+languageCode=et_EE
 handler=PresageInputHandler.qml
 ```
 
@@ -40,7 +40,7 @@ utils/keyboard/package-keyboard.sh Language langcode version keyboard.qml keyboa
 where 
 
 * Language: Specify language in English starting with the capital letter, ex 'Estonian'
-* langcode: Specify language four-letter code, ex 'et_ee'
+* langcode: Specify language four-letter code, ex 'et_EE'
 * version: Version of the language package, ex '1.0.0'
 * keyboard.qml: Keyboard QML file
 * keyboard.conf: Keyboard Configuration file referencing the QML file
@@ -53,6 +53,6 @@ packaging.
 In case of Estonian keyboard:
 
 ```
-utils/keyboard/package-keyboard.sh Estonian et_ee 0.1.0 keyboards/et-presage.qml keyboards/et-presage.conf
+utils/keyboard/package-keyboard.sh Estonian et_EE 0.1.0 keyboards/et-presage.qml keyboards/et-presage.conf
 ```
 
