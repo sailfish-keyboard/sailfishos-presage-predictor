@@ -22,12 +22,12 @@ Next, adjust the configuration file to be something like
 ```
 [et-presage.qml]
 name=Eesti (Presage)
-languageCode=ET
+languageCode=ee_ET
 handler=PresageInputHandler.qml
 ```
 
 Notice that `[]` refers to QML configuration and you provide
-user-visible _name_ and _language code_. As for Presage support, you
+user-visible _name_ and _language code_. The _name_ will be appear in the Settings menu, so you should suffix it with (Presage) for e.g. to make it distinguishable from the original layout. As for Presage support, you
 specify the handler.
 
 To package the new keyboard, you could use the script
@@ -40,7 +40,7 @@ utils/keyboard/package-keyboard.sh Language langcode version keyboard.qml keyboa
 where 
 
 * Language: Specify language in English starting with the capital letter, ex 'Estonian'
-* langcode: Specify language two-letter code, ex 'et'
+* langcode: Specify language four-letter code, ex 'et_ee'
 * version: Version of the language package, ex '1.0.0'
 * keyboard.qml: Keyboard QML file
 * keyboard.conf: Keyboard Configuration file referencing the QML file
@@ -53,6 +53,6 @@ packaging.
 In case of Estonian keyboard:
 
 ```
-utils/keyboard/package-keyboard.sh Estonian et 0.1.0 keyboards/et-presage.qml keyboards/et-presage.conf
+utils/keyboard/package-keyboard.sh Estonian et_ee 0.1.0 keyboards/et-presage.qml keyboards/et-presage.conf
 ```
 
