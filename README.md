@@ -15,6 +15,37 @@ https://openrepos.net/content/sailfishkeyboard/keyboard-presage-etee
 
 https://openrepos.net/content/sailfishkeyboard/maliit-plugin-presage
 
+#Development hints for using the Sailfish OS SDK
+If you try to build this package on a vanilia Mer build machine you are going to get some similar errors:
+```
+No provider of 'libmarisa-devel' found.
+No provider of 'libpresage-devel' found.
+error: Failed build dependencies:
+	hunspell-devel >= 1.5.1 is needed by maliit-plugin-presage-1.0-7.armv7hl
+	libmarisa-devel is needed by maliit-plugin-presage-1.0-7.armv7hl
+	libpresage-devel is needed by maliit-plugin-presage-1.0-7.armv7hl
+	pkgconfig(sqlite3) is needed by maliit-plugin-presage-1.0-7.armv7hl
+```
+
+To overcome this you will need to install the dependency packages to your mer build machine,
+however these packages are not available from the standard repositories. 
+(Please note that you will need to perform these steps if your Mer build VM get reinstalled ie. every SDK upgrade.)
+
+Login to your Mer VM with the following command:
+```
+ssh -p 2222 -i /opt/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
+```
+
+Run the following commands to register rinigus OBS repo and install the dependencies:
+```
+sb2 -t SailfishOS-3.0.2.8-armv7hl -m sdk-install -R zypper ar -f http://repo.merproject.org/obs/home:/rinigus:/keyboard/sailfish_latest_armv7hl rinigus_keyboard_obs
+sb2 -t SailfishOS-3.0.2.8-armv7hl -m sdk-install -R zypper ar -f http://repo.merproject.org/obs/home:/rinigus:/maps/sailfish_latest_armv7hl rinigus_maps_obs
+sb2 -t SailfishOS-3.0.2.8-armv7hl -m sdk-install -R zypper ref
+# type yes to approve the non https warning
+sb2 -t SailfishOS-3.0.2.8-armv7hl -m sdk-install -R zypper in libpresage-devel libmarisa-devel
+```
+Now you can build and deploy the package from the Sailfish OS SDK's QtCreator
+
 # Debugging (khm. troubleshooting) info
 To debug a keyboard plugin you should run on your device:
 ```
