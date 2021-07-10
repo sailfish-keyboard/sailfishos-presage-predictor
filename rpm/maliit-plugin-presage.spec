@@ -13,8 +13,8 @@ Name:       maliit-plugin-presage
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    Maliit plugin for text predictions using Presage
-Version:    1.0
-Release:    7
+Version:    1.1
+Release:    1
 Group:      Applications/Text
 License:    GPLv3
 URL:        https://github.com/martonmiklos/sailfishos-presage-predictor
