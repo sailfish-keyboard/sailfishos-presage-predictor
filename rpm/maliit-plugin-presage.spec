@@ -64,12 +64,12 @@ rm -rf %{buildroot}
 
 %post
 # >> post
-su - nemo -c "/bin/systemctl --user restart maliit-server.service"
+systemctl-user restart maliit-server.service || true
 # << post
 
 %postun
 # >> postun
-su - nemo -c "/bin/systemctl --user restart maliit-server.service"
+systemctl-user restart maliit-server.service || true
 # << postun
 
 %files
