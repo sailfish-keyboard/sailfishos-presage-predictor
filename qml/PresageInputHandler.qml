@@ -17,7 +17,15 @@ InputHandler {
     PresagePredictor {
         id: thread
         // note: also china language codes being set with this, assume xt9 model just ignores such
-        language: layoutRow.layout ? layoutRow.layout.languageCode : ""
+        language: {
+            // used in SFOS >= 4.2
+            if (typeof canvas !== 'undefined' && canvas.layoutModel)
+                return canvas.layoutModel.get(canvas.activeIndex).languageCode;
+            // used in SFOS < 4.2
+            if (typeof layoutRow !== 'undefined' && layoutRow.layout)
+                return layoutRow.layout.languageCode;
+            return "";
+        }
 
         property int shiftState: keyboard.isShifted ? (keyboard.isShiftLocked ? PresagePredictor.ShiftLocked
                                                                               : PresagePredictor.ShiftLatched)
