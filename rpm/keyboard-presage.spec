@@ -21,6 +21,10 @@ Requires: maliit-plugin-presage
 %description de_DE
 %{summary}.
 
+PackageName: Keyboard Presage German
+Categories:
+  - Office
+  - Keyboard
 
 %package en_US
 Summary: Keyboard layout for English with Presage support
@@ -31,6 +35,10 @@ Requires: maliit-plugin-presage
 %description en_US
 %{summary}.
 
+PackageName: Keyboard Presage English
+Categories:
+  - Office
+  - Keyboard
 
 %package es_ES
 Summary: Keyboard layout for Spanish with Presage support
@@ -41,6 +49,10 @@ Requires: maliit-plugin-presage
 %description es_ES
 %{summary}.
 
+PackageName: Keyboard Presage Spanish
+Categories:
+  - Office
+  - Keyboard
 
 %package et_EE
 Summary: Keyboard layout for Estonian with Presage support
@@ -51,6 +63,10 @@ Requires: maliit-plugin-presage
 %description et_EE
 %{summary}.
 
+PackageName: Keyboard Presage Estonian
+Categories:
+  - Office
+  - Keyboard
 
 %package fi_FI
 Summary: Keyboard layout for Finnish with Presage support
@@ -61,6 +77,10 @@ Requires: maliit-plugin-presage
 %description fi_FI
 %{summary}.
 
+PackageName: Keyboard Presage Finnish
+Categories:
+  - Office
+  - Keyboard
 
 %package hu_HU
 Summary: Keyboard layout for Hungarian with Presage support
@@ -71,6 +91,10 @@ Requires: maliit-plugin-presage
 %description hu_HU
 %{summary}.
 
+PackageName: Keyboard Presage Hungarian
+Categories:
+  - Office
+  - Keyboard
 
 %package ru_RU
 Summary: Keyboard layout for Russian with Presage support
@@ -81,9 +105,13 @@ Requires: maliit-plugin-presage
 %description ru_RU
 %{summary}.
 
+PackageName: Keyboard Presage Russian
+Categories:
+  - Office
+  - Keyboard
 
 %package sv_SE
-Summary: Keyboard layout for Russian with Presage support
+Summary: Keyboard layout for Swedish with Presage support
 Requires: presage-lang-sv_SE
 Requires: hunspell-lang-sv_SE
 Requires: maliit-plugin-presage
@@ -91,6 +119,10 @@ Requires: maliit-plugin-presage
 %description sv_SE
 %{summary}.
 
+PackageName: Keyboard Presage Swedish
+Categories:
+  - Office
+  - Keyboard
 
 ###
 

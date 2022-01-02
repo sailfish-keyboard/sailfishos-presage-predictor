@@ -17,7 +17,7 @@ Version:    1.1
 Release:    1
 Group:      Applications/Text
 License:    GPLv3
-URL:        https://github.com/martonmiklos/sailfishos-presage-predictor
+URL:        https://github.com/sailfish-keyboard/sailfishos-presage-predictor
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  maliit-plugin-presage.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
@@ -35,6 +35,12 @@ Obsoletes:   presage-data
 
 %description
 Keyboard prediction plugin based on the Presage prediction engine
+
+PackageName: Maliit Presage Plugin
+Icon: https://raw.githubusercontent.com/sailfish-keyboard/presage/master/resources/presage.png
+Categories:
+  - Office
+  - Keyboard
 
 %prep
 %setup -q -n %{name}-%{version}
