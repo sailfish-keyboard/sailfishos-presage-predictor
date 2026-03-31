@@ -96,6 +96,19 @@ Categories:
   - Office
   - Keyboard
 
+%package pl_PL
+Summary: Keyboard layout for Polish with Presage support
+Requires: presage-lang-pl_PL
+Requires: maliit-plugin-presage
+
+%description pl_PL
+%{summary}.
+
+PackageName: Keyboard Presage Polish
+Categories:
+  - Office
+  - Keyboard
+
 %package ru_RU
 Summary: Keyboard layout for Russian with Presage support
 Requires: presage-lang-ru_RU
@@ -153,6 +166,9 @@ cp -r keyboard/* %{buildroot}/usr/share/maliit/plugins/com/jolla/layouts
 
 %files hu_HU
 %{_datadir}/maliit/plugins/com/jolla/layouts/hu-presage.*
+
+%files pl_PL
+%{_datadir}/maliit/plugins/com/jolla/layouts/pl-presage.*
 
 %files ru_RU
 %{_datadir}/maliit/plugins/com/jolla/layouts/ru-presage.*
