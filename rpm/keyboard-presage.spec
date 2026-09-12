@@ -12,6 +12,20 @@ Keyboard layouts with Presage text predictions. Empty package, do not install
 
 ###
 
+%package cs_CZ
+Summary: Keyboard layout for Czech with Presage support
+Requires: presage-lang-cs_CZ
+Requires: hunspell-lang-cs_CZ
+Requires: maliit-plugin-presage
+
+%description cs_CZ
+%{summary}.
+
+PackageName: Keyboard Presage Czech
+Categories:
+  - Office
+  - Keyboard
+
 %package de_DE
 Summary: Keyboard layout for German with Presage support
 Requires: presage-lang-de_DE
