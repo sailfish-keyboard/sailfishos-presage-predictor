@@ -57,6 +57,11 @@ systemctl-user restart maliit-server.service || true
 %defattr(-,root,root,-)
 %{_libdir}/qt5/qml/hu/mm/presagepredictor/libPresagePredictor.so
 %{_libdir}/qt5/qml/hu/mm/presagepredictor/qmldir
-%{_datadir}/maliit/plugins/com/jolla/PresageInputHandler.qml
+%if 0%{?sailfishos_version} >= 52000
+%define _handler_datadir %{_datadir}/maliit/plugins/com/jolla/handlers
+%else
+%define _handler_datadir %{_datadir}/maliit/plugins/com/jolla
+%endif
+%{_handler_datadir}/PresageInputHandler.qml
 %{_datadir}/presage/database_empty
 %{_sysconfdir}/presage.xml
