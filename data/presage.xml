@@ -114,7 +114,10 @@
 		 Deltas also control the value of n in the n-gram model.
 	    -->
             <DELTAS>0.01 0.1 0.89</DELTAS>
-            <COUNT_THRESHOLD>0</COUNT_THRESHOLD>
+            <!-- Learned words are only suggested once seen more than five
+                 times, so one-off typos committed by the user do not surface
+                 as predictions and crowd out dictionary completions. -->
+            <COUNT_THRESHOLD>6</COUNT_THRESHOLD>
             <LEARN>true</LEARN>
             <DatabaseConnector>
                 <LOGGER>ERROR</LOGGER>
