@@ -163,6 +163,9 @@ cp -r keyboard/* %{buildroot}/usr/share/maliit/plugins/com/jolla/layouts
 %files
 %defattr(-,root,root,-)
 
+%files cs_CZ
+%{_datadir}/maliit/plugins/com/jolla/layouts/cs-presage.*
+
 %files de_DE
 %{_datadir}/maliit/plugins/com/jolla/layouts/de-presage.*
 
