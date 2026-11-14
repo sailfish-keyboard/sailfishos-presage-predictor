@@ -114,7 +114,10 @@
 		 Deltas also control the value of n in the n-gram model.
 	    -->
             <DELTAS>0.01 0.1 0.89</DELTAS>
-            <COUNT_THRESHOLD>0</COUNT_THRESHOLD>
+            <!-- Learned words are only suggested once seen more than five
+                 times, so one-off typos committed by the user do not surface
+                 as predictions and crowd out dictionary completions. -->
+            <COUNT_THRESHOLD>6</COUNT_THRESHOLD>
             <LEARN>true</LEARN>
             <DatabaseConnector>
                 <LOGGER>ERROR</LOGGER>
@@ -132,8 +135,11 @@
             <LOGGER>ERROR</LOGGER>
             <!-- basename of the dictionary and affix files. extensions .dic and .aff will be added, as appropriate -->
             <DICTIONARYBASE>/usr/share/hunspell/en_US</DICTIONARYBASE>
-            <!-- the probability assigned to the first prediction -->
-            <PROBABILITY>0.000001</PROBABILITY>
+            <!-- the probability assigned to the first prediction.
+                 Kept well below typical smoothed n-gram probabilities so that
+                 speller suggestions only surface when the n-gram model has no
+                 prefix completion to offer. -->
+            <PROBABILITY>0.000000001</PROBABILITY>
         </DefaultHunspellPredictor>
     </Predictors>
 </Presage>

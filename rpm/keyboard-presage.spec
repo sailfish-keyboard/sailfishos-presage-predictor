@@ -96,6 +96,20 @@ Categories:
   - Office
   - Keyboard
 
+%package fr_FR
+Summary: Keyboard layout for French with Presage support
+Requires: presage-lang-fr_FR
+Requires: hunspell-lang-fr_FR
+Requires: maliit-plugin-presage
+
+%description fr_FR
+%{summary}.
+
+PackageName: Keyboard Presage French
+Categories:
+  - Office
+  - Keyboard
+
 %package hu_HU
 Summary: Keyboard layout for Hungarian with Presage support
 Requires: presage-lang-hu_HU
@@ -180,6 +194,9 @@ cp -r keyboard/* %{buildroot}/usr/share/maliit/plugins/com/jolla/layouts
 
 %files fi_FI
 %{_datadir}/maliit/plugins/com/jolla/layouts/fi*-presage.*
+
+%files fr_FR
+%{_datadir}/maliit/plugins/com/jolla/layouts/fr-presage.*
 
 %files hu_HU
 %{_datadir}/maliit/plugins/com/jolla/layouts/hu-presage.*

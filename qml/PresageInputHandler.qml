@@ -73,9 +73,17 @@ InputHandler {
         if (text.substr(0, preeditLength) === presageHandler.preedit) {
             return "<font color=\"" + Theme.highlightColor + "\">" + presageHandler.preedit + "</font>"
                     + text.substr(preeditLength)
-        } else {
-            return text
+        } else if (text.indexOf(presageHandler.preedit) !== 0) {
+            // Elision case: the engine only completed the segment after the last
+            // apostrophe, so show the elided prefix highlighted plus the completion
+            // ("d'" + "un" -> d'un), matching what applyPrediction will commit.
+            var apos = presageHandler.preedit.lastIndexOf("'")
+            if (apos >= 0) {
+                var prefix = presageHandler.preedit.substr(0, apos + 1)
+                return "<font color=\"" + Theme.highlightColor + "\">" + prefix + "</font>" + text
+            }
         }
+        return text
     }
 
     topItem: Component {
@@ -295,6 +303,17 @@ InputHandler {
     }
 
     function applyPrediction(replacement, index) {
+        // The engine tokenizes on apostrophes (see DEFAULT_SEPARATOR_CHARS), so a
+        // suggestion only completes the segment after the last apostrophe: typing
+        // "d'u" yields "un", not "d'un". Re-attach the elided prefix so accepting
+        // commits "d'un" instead of dropping the "d'".
+        if (replacement.indexOf(preedit) !== 0 && preedit.length > 0) {
+            var apos = preedit.lastIndexOf("'")
+            if (apos >= 0) {
+                replacement = preedit.substr(0, apos + 1) + replacement
+            }
+        }
+
         replacement = replacement + " "
         candidateSpaceIndex = MInputMethodQuick.surroundingTextValid
                 ? MInputMethodQuick.cursorPosition + replacement.length : -1
